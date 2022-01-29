@@ -1,0 +1,52 @@
+plugins {
+    id 'org.springframework.boot' version '2.6.3'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+}
+
+ext {
+    SpringVersion = '2.6.3'
+    TestNGVersion = '7.5'
+}
+
+group = 'de.metallist'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    /////////////////
+    // SPRING BOOT //
+    /////////////////
+
+    // Apache License 2.0
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter', version: SpringVersion
+
+    // Apache License 2.0
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: SpringVersion
+
+    // Apache License 2.0
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-jpa
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: SpringVersion
+
+    // Apache License 2.0
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools
+    developmentOnly group: 'org.springframework.boot', name: 'spring-boot-devtools', version: SpringVersion
+
+    // Apache License 2.0
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test
+    testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: SpringVersion
+
+    // Apache License 2.0
+    // https://mvnrepository.com/artifact/org.testng/testng
+    testImplementation group: 'org.testng', name: 'testng', version: TestNGVersion
+}
+
+tasks.named('test') {
+    useTestNG()
+}
