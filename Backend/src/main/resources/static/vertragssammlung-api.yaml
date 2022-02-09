@@ -1,0 +1,246 @@
+openapi: 3.0.0
+info:
+  title: Vertragssammlung
+  description: Vertragssammlung
+  version: 0.1.0
+servers:
+  - url: 'http://localhost:8080/demo'
+paths:
+  /add:
+    post:
+      summary: creates a new contract
+      operationId: neuerVertrag
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  head:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        description: response message with further information
+                      reasonCode:
+                        type: string
+                        enum:
+                          - "RC_G_00"
+                          - "RC_A_00"
+                        description: provides basic information on the action result
+                  body:
+                    $ref: '#/components/schemas/contractJson'
+        401:
+          description: "NOT FOUND"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  head:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        description: response message with further information
+                      reasonCode:
+                        type: string
+                        enum:
+                          - "RC_A_10"
+                          - "RC_G_99"
+                        description: provides basic information on the action result
+                  body:
+                    $ref: '#/components/schemas/contractJson'
+  /delete:
+    post:
+      summary: deletes a contract
+      operationId: vertragLoeschen
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  head:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        description: response message with further information
+                      reasonCode:
+                        type: string
+                        enum:
+                          - "RC_L_00"
+                          - "RC_A_00"
+                        description: provides basic information on the action result
+                  body:
+                    $ref: '#/components/schemas/contractJson'
+        400:
+          description: "BAD REQUEST"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  head:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        description: response message with further information
+                      reasonCode:
+                        type: string
+                        enum:
+                          - "RC_L_20"
+                          - "RC_G_99"
+                        description: provides basic information on the action result
+                  body:
+                    $ref: '#/components/schemas/contractJson'
+        422:
+          description: "UNPROCESSABLE ENTITY"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  head:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        description: response message with further information
+                      reasonCode:
+                        type: string
+                        enum:
+                          - "RC_L_10"
+                          - "RC_G_99"
+                        description: provides basic information on the action result
+                  body:
+                    $ref: '#/components/schemas/contractJson'
+  /all:
+    get:
+      summary: fetches all contracts
+      operationId: getAlleVertraege
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  head:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        description: response message with further information
+                      reasonCode:
+                        type: string
+                        enum:
+                          - "RC_A_00"
+                        description: provides basic information on the action result
+                  body:
+                    $ref: '#/components/schemas/contractJson'
+  /get:
+    get:
+      summary: fetches one specific contract
+      operationId: getEinVertrag
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  head:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        description: response message with further information
+                      reasonCode:
+                        type: string
+                        enum:
+                          - "RC_A_00"
+                        description: provides basic information on the action result
+                  body:
+                    $ref: '#/components/schemas/contractJson'
+  /change:
+    patch:
+      summary: updates a contract
+      operationId: changeVertrag
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  head:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        description: response message with further information
+                      reasonCode:
+                        type: string
+                        enum:
+                          - "RC_U_00"
+                          - "RC_A_00"
+                        description: provides basic information on the action result
+                  body:
+                    $ref: '#/components/schemas/contractJson'
+        409:
+          description: "CONFLICT"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  head:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        description: response message with further information
+                      reasonCode:
+                        type: string
+                        enum:
+                          - "RC_U_10"
+                          - "RC_G_99"
+                        description: provides basic information on the action result
+                  body:
+                    $ref: '#/components/schemas/contractJson'
+
+components:
+  schemas:
+    contractJson:
+      type: object
+      properties:
+        typ:
+          type: string
+          description: determines the type of a contract
+        name:
+          type: string
+          description: some name for the user
+        kosten:
+          type: number
+          format: float
+          description: expenses per payment
+        turnus:
+          type: integer
+          minimum: 1
+          description: number of payments per year
+        beschreibung:
+          type: string
+          description: a short description of the contract
+        dokumentenpfad:
+          type: string
+          description: place where the important files are located

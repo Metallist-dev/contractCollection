@@ -1,0 +1,18 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name = "BackendTests">
+    <test name = "API tests">
+        <classes>
+            <class name = "de.metallist.backend.TestVertrag">
+                <methods>
+                    <include name="test_00_neuerVertrag" />
+                    <include name="test_01_vertragLoeschen" />
+                    <include name="test_02_vertraegeLesen" />
+                    <include name="test_03_vertragLesen" />
+                    <include name="test_04_datenAendern" />
+                </methods>
+            </class>
+        </classes>
+    </test>
+</suite>

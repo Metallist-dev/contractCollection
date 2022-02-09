@@ -4,10 +4,12 @@ plugins {
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 }
 
-ext {
-    SpringVersion = '2.6.3'
-    TestNGVersion = '7.5'
-}
+// VARIABLES
+def SpringVersion = '2.6.3'
+def TestNGVersion = '7.5'
+def JacksonVersion = '2.13.1'
+def OpenAPIVersion = '1.6.6'
+// VARIABLES
 
 group = 'de.metallist'
 version = '0.0.1-SNAPSHOT'
@@ -42,18 +44,52 @@ dependencies {
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test
     testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: SpringVersion
 
-    // Apache License 2.0
-    // https://mvnrepository.com/artifact/org.testng/testng
-    testImplementation group: 'org.testng', name: 'testng', version: TestNGVersion
-
 
     ////////////
     // OTHERS //
     ////////////
 
+    // MIT License
+    // https://mvnrepository.com/artifact/org.projectlombok/lombok
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
+
     // LGPL 2.1
     // https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
     implementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '3.0.3'
+
+    // Apache License 2.0
+    // https://mvnrepository.com/artifact/org.flywaydb/flyway-core
+    //implementation group: 'org.flywaydb', name: 'flyway-core', version: '8.4.3'
+
+    // Apache License 2.0
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: JacksonVersion
+
+    // Apache License 2.0
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: JacksonVersion
+
+    // Apache License 2.0
+    // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-ui
+    implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: OpenAPIVersion
+
+    // Apache License 2.0
+    // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-common
+    //implementation group: 'org.springdoc', name: 'springdoc-openapi-common', version: OpenAPIVersion
+
+
+    // Apache License 2.0
+    // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-webmvc-core
+    //testImplementation group: 'org.springdoc', name: 'springdoc-openapi-webmvc-core', version: OpenAPIVersion
+
+    // Apache License 2.0
+    // https://mvnrepository.com/artifact/org.testng/testng
+    testImplementation group: 'org.testng', name: 'testng', version: TestNGVersion
+
+    // MIT License
+    // https://mvnrepository.com/artifact/org.mockito/mockito-testng
+    testImplementation group: 'org.mockito', name: 'mockito-testng', version: '0.4.16'
 
 }
 

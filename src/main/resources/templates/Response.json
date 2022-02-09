@@ -1,0 +1,15 @@
+{
+  "head": {
+    "message": "#MESSAGE#",
+    "reasonCode": "#REASON-CODE#"
+  },
+  "body": {
+    "id": 0,
+    "typ": "#CONTRACT TYPE#",
+    "name": "#NAME#",
+    "kosten": "#EXPENSES#",
+    "turnus": "#CYCLE#",
+    "beschreibung": "#DESCRIPTION#",
+    "dokumentenpfad": "#DOCUMENTS PATH#"
+  }
+}
