@@ -1,13 +1,13 @@
-package de.metallist.vertragssammlung;
+package de.metallist.contractcollection;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class VertragssammlungApplication {
+public class ContractCollectionApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(VertragssammlungApplication.class, args);
+        SpringApplication.run(ContractCollectionApplication.class, args);
     }
 
 }

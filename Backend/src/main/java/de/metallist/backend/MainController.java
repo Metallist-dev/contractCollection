@@ -2,7 +2,6 @@ package de.metallist.backend;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -10,135 +9,145 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URLDecoder;
 import java.util.Optional;
 
-import static de.metallist.backend.ReasonCodes.RC_ANLEGEN_ERFOLG;
-import static de.metallist.backend.ReasonCodes.RC_LOESCHEN_FEHLEND;
+import static de.metallist.backend.ReasonCodes.RC_DELETE_MISSING;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 /**
- * Controller, der sich um die Behandlung von Requests der REST-API kümmert
+ * Controller, which handles the requests to the REST-API
  *
- * @author mhenke
+ * @author Metallist-dev
  * @version 0.1
  */
 @Controller
 @Slf4j
 @RequestMapping(path = "/demo")
 public class MainController {
-    private final Repository vertragsRepo;
+    private final Repository contractRepository;
 
     @Autowired
-    public MainController(Repository vertragsRepo) {
-        this.vertragsRepo = vertragsRepo;
+    public MainController(Repository contractRepository) {
+        this.contractRepository = contractRepository;
     }
 
     /**
-     * legt einen neuen Vertrag an
-     * @param typ          Vertragsart (Kategorie)
-     * @param name         verständlicher Name
-     * @param kosten       Kosten je Zahlung
-     * @param turnus       Turnus (siehe {@link de.metallist.backend.Vertrag#turnus})
-     * @param beschreibung kurze Inhaltsbeschreibung
-     * @param dokumentpfad Ablageort für Dokumente
-     * @return Meldung über Erfolg oder Misserfolg
+     * adds a new contract
+     * @param category          category
+     * @param name              readable name
+     * @param expenses          costs per payment
+     * @param cycle             cycle of payment (see {@link Contract#cycle})
+     * @param customerNr        ID of customer
+     * @param contractNr        ID of contract
+     * @param startDate         start of the contract in format "YYYY-MM-DD"
+     * @param contractPeriod    length of a contractual period
+     * @param periodOfNotice    length of a period of notice in weeks
+     * @param description       short description of content
+     * @param documentPath      path to folder with documents
+     * @return added contract or empty contract
      */
     @SuppressWarnings("JavadocReference")
     @PostMapping(path = "/add")
-    public ResponseEntity<Vertrag> neuerVertrag(
-            @RequestParam String typ,
+    public ResponseEntity<Contract> addContract(
+            @RequestParam String category,
             @RequestParam String name,
-            @RequestParam String kosten,
-            @RequestParam String turnus,
-            @RequestParam String beschreibung,
-            @RequestParam String dokumentpfad
+            @RequestParam String expenses,
+            @RequestParam String cycle,
+            @RequestParam String customerNr,
+            @RequestParam String contractNr,
+            @RequestParam String startDate,
+            @RequestParam String contractPeriod,
+            @RequestParam String periodOfNotice,
+            @RequestParam String description,
+            @RequestParam String documentPath
             ) {
         try {
-            Vertrag vertrag = new Vertrag();
-            vertrag.neuerVertrag(
-                    decode(typ), decode(name), decode(kosten), decode(turnus),
-                    decode(beschreibung), decode(dokumentpfad)
+            Contract contract = new Contract();
+            contract.newContract(
+                    decode(category), decode(name), decode(expenses), decode(cycle), decode(customerNr),
+                    decode(contractNr), decode(startDate), decode(contractPeriod), decode(periodOfNotice),
+                    decode(description), decode(documentPath)
             );
 
             int maxID = 1;
-            for (Vertrag v : vertragsRepo.findAll()) {
+            for (Contract v : contractRepository.findAll()) {
                 if (v.getId() >= maxID) maxID = v.getId() + 1;
             }
-            vertrag.setId(maxID);
+            contract.setId(maxID);
 
-            vertragsRepo.save(vertrag);
+            contractRepository.save(contract);
 
-            return ResponseEntity.ok(vertrag);
+            return ResponseEntity.ok(contract);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(NOT_FOUND).body(new Vertrag());
+            return ResponseEntity.status(NOT_FOUND).body(new Contract());
         }
     }
 
     /**
-     * löscht einen bestimmten Vertrag
-     * @param id   primary key des Vertrages
-     * @param name Bezeichner zur Kontrolle
-     * @return     Meldung über Erfolg/Misserfolg
+     * deletes a specified contract
+     * @param id   primary key of the contract
+     * @param name name for double-check
+     * @return     message telling about success/failure
      */
     @PostMapping(path = "/delete")
-    public ResponseEntity<String> vertragLoeschen(@RequestParam String id, @RequestParam String name) {
+    public ResponseEntity<String> deleteContract(@RequestParam String id, @RequestParam String name) {
         try {
-            log.info("Versuche einen Vertrag mit der ID " + id + " zu löschen.");
-            if (new Vertrag().deleteVertrag(vertragsRepo, id, name)) {
-                log.info("Löschen erfolgreich.");
-                return ResponseEntity.ok("erfolgreich");
+            log.info("Try to delete the contract with ID " + id + ".");
+            if (new Contract().deleteContract(contractRepository, id, name)) {
+                log.info("Successfully deleted.");
+                return ResponseEntity.ok("successful");
             }
             else {
-                log.error("Beim Löschen des Vertrages mit der ID " + id + " ist etwas schief gelaufen.");
-                return ResponseEntity.badRequest().body("Irgendwas ist schief gelaufen.");
+                log.error("Something went wrong during deletion of the contract with ID " + id + ".");
+                return ResponseEntity.badRequest().body("Something went wrong.");
             }
 
         } catch (NullPointerException npe) {
-            String message = RC_LOESCHEN_FEHLEND + ": Vertrag mit der ID " + id + " und dem Namen " +  name + " ist nicht vorhanden.";
+            String message = RC_DELETE_MISSING + ": the contract with ID " + id + " and name " +  name + " is unavailable.";
             System.out.println(message);
-            return ResponseEntity.unprocessableEntity().body("Vertrag mit der ID " + id + " und dem Namen " +  name + " ist nicht vorhanden.");
+            return ResponseEntity.unprocessableEntity().body("Contract with ID " + id + " and name " +  name + " is unavailable.");
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().body("Fehler: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
     }
 
     /**
-     * liefert alle Verträge zurück
-     * @return ResponseBody mit allen Verträgen
+     * fetches a list of all contracts
+     * @return list of all contracts
      */
     @GetMapping(path = "/all")
-    public ResponseEntity<Iterable<Vertrag>> getAlleVertraege() {
-        log.info("GET-Request auf alle Verträge.");
-        return ResponseEntity.ok(vertragsRepo.findAll());
+    public ResponseEntity<Iterable<Contract>> getAllContracts() {
+        log.info("GET-Request for all contracts.");
+        return ResponseEntity.ok(contractRepository.findAll());
     }
 
     /**
-     * Liefert einen bestimmten Vertrag oder null zurück
-     * @param id   Vertragsid (primary key)
-     * @return     Vertrag oder null
+     * fetches a specified contract
+     * @param id   contract ID (primary key)
+     * @return     contract or null
      */
     @GetMapping(path = "/get")
-    public ResponseEntity<Vertrag> getEinVertrag(@RequestParam String id) { return ResponseEntity.ok(new Vertrag().getVertrag(vertragsRepo, id)); }
+    public ResponseEntity<Contract> getSingleContract(@RequestParam String id) { return ResponseEntity.ok(new Contract().getContract(contractRepository, id)); }
 
     @PatchMapping(path = "/change/{id}")
-    public ResponseEntity<Vertrag> changeVertrag(@PathVariable int id, @RequestParam String key, @RequestParam String value) {
-        Optional<Vertrag> vertragsKandidat = vertragsRepo.findById(id);
-        if (vertragsKandidat.isEmpty()) return null;
-        Vertrag vertrag = vertragsKandidat.get();
+    public ResponseEntity<Contract> updateContract(@PathVariable int id, @RequestParam String key, @RequestParam String value) {
+        Optional<Contract> contractCandidate = contractRepository.findById(id);
+        if (contractCandidate.isEmpty()) return null;
+        Contract contract = contractCandidate.get();
 
-        Vertrag neuerVertrag = vertrag.changeVertrag(key, value);
-        //if (neuerVertrag==null) return "Es gab einen Fehler bei Änderung des Key " + key + "\n";
-        //if (neuerVertrag==null) return ResponseEntity.status(CONFLICT).body("Es gab einen Fehler bei Änderung des Key " + key + "\n");
-        if (neuerVertrag==null) return ResponseEntity.status(CONFLICT).body(new Vertrag());
-        vertragsRepo.save(vertrag);
-        //return ResponseEntity.ok("Der Vertrag " + id + " wurde im Wert " + key + " geändert. Neuer Wert: " + value + "\n");
-        return ResponseEntity.ok(vertrag);
+        Contract newContract = contract.updateContract(key, value);
+        //if (newContract==null) return "Es gab einen Fehler bei Änderung des Key " + key + "\n";
+        //if (newContract==null) return ResponseEntity.status(CONFLICT).body("Es gab einen Fehler bei Änderung des Key " + key + "\n");
+        if (newContract ==null) return ResponseEntity.status(CONFLICT).body(new Contract());
+        contractRepository.save(contract);
+        //return ResponseEntity.ok("Der Contract " + id + " wurde im Wert " + key + " geändert. Neuer Wert: " + value + "\n");
+        return ResponseEntity.ok(contract);
     }
 
 
-    /// Helferfunktionen
+    /// Helpers
     private String decode(String input) {
         return URLDecoder.decode(input, UTF_8);
     }

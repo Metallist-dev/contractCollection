@@ -4,13 +4,13 @@
 <suite name = "BackendTests">
     <test name = "API tests">
         <classes>
-            <class name = "de.metallist.backend.TestVertrag">
+            <class name = "de.metallist.backend.TestContract">
                 <methods>
-                    <include name="test_00_neuerVertrag" />
-                    <include name="test_01_vertragLoeschen" />
-                    <include name="test_02_vertraegeLesen" />
-                    <include name="test_03_vertragLesen" />
-                    <include name="test_04_datenAendern" />
+                    <include name="test_00_newContract" />
+                    <include name="test_01_deleteContract" />
+                    <include name="test_02_readAllContracts" />
+                    <include name="test_03_readSingleContract" />
+                    <include name="test_04_updateContract" />
                 </methods>
             </class>
         </classes>

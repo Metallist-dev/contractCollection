@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
-  title: Vertragssammlung
-  description: Vertragssammlung
+  title: Contract collection
+  description: collects contracts with all important information
   version: 0.1.0
 servers:
   - url: 'http://localhost:8080/demo'
@@ -9,7 +9,7 @@ paths:
   /add:
     post:
       summary: creates a new contract
-      operationId: neuerVertrag
+      operationId: addContract
       responses:
         200:
           description: "OK"
@@ -27,8 +27,8 @@ paths:
                       reasonCode:
                         type: string
                         enum:
-                          - "RC_G_00"
-                          - "RC_A_00"
+                          - "RC_GEN_00"
+                          - "RC_ADD_00"
                         description: provides basic information on the action result
                   body:
                     $ref: '#/components/schemas/contractJson'
@@ -48,15 +48,15 @@ paths:
                       reasonCode:
                         type: string
                         enum:
-                          - "RC_A_10"
-                          - "RC_G_99"
+                          - "RC_ADD_10"
+                          - "RC_GEN_99"
                         description: provides basic information on the action result
                   body:
                     $ref: '#/components/schemas/contractJson'
   /delete:
     post:
       summary: deletes a contract
-      operationId: vertragLoeschen
+      operationId: deleteContract
       responses:
         200:
           description: "OK"
@@ -74,8 +74,8 @@ paths:
                       reasonCode:
                         type: string
                         enum:
-                          - "RC_L_00"
-                          - "RC_A_00"
+                          - "RC_DEL_00"
+                          - "RC_GEN_00"
                         description: provides basic information on the action result
                   body:
                     $ref: '#/components/schemas/contractJson'
@@ -95,8 +95,8 @@ paths:
                       reasonCode:
                         type: string
                         enum:
-                          - "RC_L_20"
-                          - "RC_G_99"
+                          - "RC_DEL_20"
+                          - "RC_GEN_99"
                         description: provides basic information on the action result
                   body:
                     $ref: '#/components/schemas/contractJson'
@@ -116,15 +116,15 @@ paths:
                       reasonCode:
                         type: string
                         enum:
-                          - "RC_L_10"
-                          - "RC_G_99"
+                          - "RC_DEL_10"
+                          - "RC_GEN_99"
                         description: provides basic information on the action result
                   body:
                     $ref: '#/components/schemas/contractJson'
   /all:
     get:
       summary: fetches all contracts
-      operationId: getAlleVertraege
+      operationId: getAllContracts
       responses:
         200:
           description: "OK"
@@ -142,14 +142,14 @@ paths:
                       reasonCode:
                         type: string
                         enum:
-                          - "RC_A_00"
+                          - "RC_GEN_00"
                         description: provides basic information on the action result
                   body:
                     $ref: '#/components/schemas/contractJson'
   /get:
     get:
       summary: fetches one specific contract
-      operationId: getEinVertrag
+      operationId: getSingleContract
       responses:
         200:
           description: "OK"
@@ -167,14 +167,14 @@ paths:
                       reasonCode:
                         type: string
                         enum:
-                          - "RC_A_00"
+                          - "RC_GEN_00"
                         description: provides basic information on the action result
                   body:
                     $ref: '#/components/schemas/contractJson'
   /change:
     patch:
       summary: updates a contract
-      operationId: changeVertrag
+      operationId: updateContract
       responses:
         200:
           description: "OK"
@@ -192,8 +192,8 @@ paths:
                       reasonCode:
                         type: string
                         enum:
-                          - "RC_U_00"
-                          - "RC_A_00"
+                          - "RC_UPD_00"
+                          - "RC_GEN_00"
                         description: provides basic information on the action result
                   body:
                     $ref: '#/components/schemas/contractJson'
@@ -213,8 +213,8 @@ paths:
                       reasonCode:
                         type: string
                         enum:
-                          - "RC_U_10"
-                          - "RC_G_99"
+                          - "RC_UPD_10"
+                          - "RC_GEN_99"
                         description: provides basic information on the action result
                   body:
                     $ref: '#/components/schemas/contractJson'
@@ -224,23 +224,38 @@ components:
     contractJson:
       type: object
       properties:
-        typ:
+        category:
           type: string
-          description: determines the type of a contract
+          description: determines the category of a contract
         name:
           type: string
           description: some name for the user
-        kosten:
+        expenses:
           type: number
           format: float
           description: expenses per payment
-        turnus:
+        cycle:
           type: integer
           minimum: 1
           description: number of payments per year
-        beschreibung:
+        customerNr:
+          type: string
+          description: id of customer
+        contractNr:
+          type: string
+          description: id of the contract
+        startdate:
+          type: string
+          description: start of the contract in format "YYYY-MM-DD"
+        contractPeriod:
+          type: integer
+          description: length of a contractual period
+        periodOfNotice:
+          type: integer
+          description: number of weeks when the contract can be noticed at last before end of a contractual period
+        description:
           type: string
           description: a short description of the contract
-        dokumentenpfad:
+        documentPath:
           type: string
           description: place where the important files are located

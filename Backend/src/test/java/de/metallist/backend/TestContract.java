@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.testng.Assert.*;
 
 @SpringBootTest(classes = BackendApplication.class)
-public class TestVertrag extends AbstractTestNGSpringContextTests {
+public class TestContract extends AbstractTestNGSpringContextTests {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
@@ -35,27 +35,33 @@ public class TestVertrag extends AbstractTestNGSpringContextTests {
     }
 
     @Test
-    public void test_00_neuerVertrag() throws Exception {
-        String typ = "typ=Versicherung";
+    public void test_00_newContract() throws Exception {
+        String category = "category=Versicherung";
         String name = "&name=Krankenversicherung";
-        String kosten = "&kosten=108";
-        String turnus = "&turnus=4";
-        String beschreibung = "&beschreibung=gesetzliche+Krankenversicherung+-+Studententarif";
-        String dokumentpfad = "&dokumentpfad=%2Fhome%2Fmhenke%2FSchreibtisch";
+        String expenses = "&expenses=108";
+        String cycle = "&cycle=4";
+        String customerNr = "&customerNr=12345";
+        String contractNr = "&contractNr=56789";
+        String startDate = "&startDate=2020-11-16";
+        String contractPeriod = "&contractPeriod=1";
+        String periodOfNotice = "&periodOfNotice=2";
+        String description = "&description=gesetzliche+Krankenversicherung+-+Studententarif";
+        String documentPath = "&documentPath=%2Fhome%2Fmhenke%2FSchreibtisch";
 
         //mockMvc.perform(post("/demo/add?typ=Versicherung&name=Krankenversicherung&kosten=108&turnus=4&beschreibung=Test&dokumentpfad=Test"))
-        mockMvc.perform(post("/demo/add?" + typ + name + kosten + turnus + beschreibung + dokumentpfad))
+        mockMvc.perform(post("/demo/add?" + category + name + expenses + cycle + customerNr + contractNr +
+                        startDate + contractPeriod + periodOfNotice + description + documentPath))
                 .andExpect(status().isOk())
                 .andExpect(result -> {
                     String answer = result.getResponse().getContentAsString();
                     System.out.println(answer);
-                    assertFalse(answer.contains("Fehler"));
+                    assertFalse(answer.contains("Error"));
                 });
     }
 
     @Test
-    public void test_01_vertragLoeschen() throws Exception {
-        this.test_00_neuerVertrag();
+    public void test_01_deleteContract() throws Exception {
+        this.test_00_newContract();
 
         ObjectMapper mapper = new ObjectMapper();
         AtomicReference<String> dataJson = new AtomicReference<>("");
@@ -78,13 +84,13 @@ public class TestVertrag extends AbstractTestNGSpringContextTests {
         mockMvc.perform(post("/demo/delete?" + id + name))
                 .andExpect(status().isOk())
                 .andExpect(result -> {
-                    boolean fehler = result.getResponse().getContentAsString().contains("Fehler");
+                    boolean fehler = result.getResponse().getContentAsString().contains("Error");
                     if (fehler) fail();
                 });
     }
 
     @Test
-    public void test_02_vertraegeLesen() throws Exception {
+    public void test_02_readAllContracts() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
 
@@ -102,8 +108,8 @@ public class TestVertrag extends AbstractTestNGSpringContextTests {
     }
 
     @Test
-    public void test_03_vertragLesen() throws Exception {
-        if (smallestID == -1) this.test_02_vertraegeLesen();
+    public void test_03_readSingleContract() throws Exception {
+        if (smallestID == -1) this.test_02_readAllContracts();
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
@@ -115,13 +121,13 @@ public class TestVertrag extends AbstractTestNGSpringContextTests {
                     String outputJson = mapper.writeValueAsString(mapper.readTree(answer));
                     System.out.println(outputJson);
                     assertFalse(answer.isEmpty());
-                    assertFalse(answer.contains("Fehler"));
+                    assertFalse(answer.contains("Error"));
                 });
     }
 
     @Test
-    public void test_04_datenAendern() throws Exception {
-        if (smallestID == -1) this.test_02_vertraegeLesen();
+    public void test_04_updateContract() throws Exception {
+        if (smallestID == -1) this.test_02_readAllContracts();
 
         mockMvc.perform(patch("/demo/change/"+ smallestID +"?key=name&value=Testversicherung"))
                 .andExpect(status().isOk())
@@ -129,7 +135,7 @@ public class TestVertrag extends AbstractTestNGSpringContextTests {
                     String answer = result.getResponse().getContentAsString();
                     System.out.println(answer);
                     assertFalse(answer.isEmpty());
-                    assertFalse(answer.contains("Fehler"));
+                    assertFalse(answer.contains("Error"));
                 });
     }
 }

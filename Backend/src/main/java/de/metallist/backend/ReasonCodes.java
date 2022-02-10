@@ -3,17 +3,23 @@ package de.metallist.backend;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * collection of reason codes which specify the result in a short way
+ *
+ * @author Metallist-dev
+ * @version 0.1
+ */
 @AllArgsConstructor
 public enum ReasonCodes {
-    RC_ALLG_ERFOLG("RC_G_00", "Aktion erfolgreich"),
-    RC_ANLEGEN_ERFOLG("RC_A_00", "Vertrag erfolgreich angelegt"),
-    RC_ANLEGEN_FEHLER("RC_A_10", "Vertrag anlegen fehlerhaft"),
-    RC_LOESCHEN_ERFOLG("RC_L_00", "Vertrag erfolgreich gelöscht"),
-    RC_LOESCHEN_FEHLEND("RC_L_10", "zu löschender Vertrag nicht vorhanden"),
-    RC_LOESCHEN_FEHLER("RC_L_20", "allgemeiner Fehler beim Löschen"),
-    RC_UPDATE_ERFOLG("RC_U_00", "Vertrag erfolgreich aktualisiert"),
-    RC_UPDATE_FEHLER("RC_U_10", "Vertrag aktualisieren fehlerhaft"),
-    RC_ALLG_FEHLER("RC_G_99", "Aktion nicht erfolgreich");
+    RC_GENERAL_SUCCESS("RC_GEN_00", "action successful"),
+    RC_CREATE_SUCCESS("RC_ADD_00", "contract created"),
+    RC_CREATE_ERROR("RC_ADD_10", "contract creation error"),
+    RC_DELETE_SUCCESS("RC_DEL_00", "contract deleted"),
+    RC_DELETE_MISSING("RC_DEL_10", "contract for deletion missing"),
+    RC_DELETE_ERROR("RC_DEL_20", "general error while deletion"),
+    RC_UPDATE_SUCCESS("RC_UPD_00", "contract updated"),
+    RC_UPDATE_ERROR("RC_UPD_10", "contract update failed"),
+    RC_GENERAL_ERROR("RC_GEN_99", "action failed");
 
     @Getter
     private final String codenumber;

@@ -5,11 +5,16 @@
   },
   "body": {
     "id": 0,
-    "typ": "#CONTRACT TYPE#",
+    "category": "#CATEGORY#",
     "name": "#NAME#",
-    "kosten": "#EXPENSES#",
-    "turnus": "#CYCLE#",
-    "beschreibung": "#DESCRIPTION#",
-    "dokumentenpfad": "#DOCUMENTS PATH#"
+    "expenses": "#EXPENSES#",
+    "cycle": "#CYCLE#",
+    "customerNr": "#CUSTOMER#",
+    "contractNr": "#CONTRACT#",
+    "startDate": "#STARTDATE#",
+    "contractPeriod": "#CONTRACTPERIOD#",
+    "periodOfNotice": "#NOTICEPERIOD#",
+    "description": "#DESCRIPTION#",
+    "documentPath": "#DOCUMENTS PATH#"
   }
 }
