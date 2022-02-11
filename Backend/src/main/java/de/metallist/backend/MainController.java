@@ -71,7 +71,7 @@ public class MainController {
 
             int maxID = 1;
             for (Contract v : contractRepository.findAll()) {
-                if (v.getId() >= maxID) maxID = v.getId() + 1;
+                if (v.getId() == maxID) maxID = v.getId() + 1;
             }
             contract.setId(maxID);
 
