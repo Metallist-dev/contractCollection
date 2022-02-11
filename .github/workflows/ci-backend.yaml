@@ -2,7 +2,7 @@ name: backend-CI
 on:
   - push
 jobs:
-  build-and-test:
+  build:
     runs-on: self-hosted
 
     steps:
@@ -22,6 +22,11 @@ jobs:
         with:
           arguments: build
 
+  test:
+    runs-on: self-hosted
+    needs: build
+
+    steps:
       - name: Test with TestNG
         uses: gradle/gradle-build-action@937999e9cc2425eddc7fd62d1053baf041147db7
         with:
