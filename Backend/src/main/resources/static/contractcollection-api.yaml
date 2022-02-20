@@ -3,6 +3,10 @@ info:
   title: Contract collection
   description: collects contracts with all important information
   version: 0.1.0
+  contact:
+    name: Metallist-dev
+    url: https://github.com/Metallist-dev
+    email: metallist.images@gmail.com
 servers:
   - url: 'http://localhost:8080/demo'
 paths:
@@ -10,9 +14,16 @@ paths:
     post:
       summary: creates a new contract
       operationId: addContract
+      requestBody:
+        description: contains the data of the contract
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/contractJson'
       responses:
-        200:
-          description: "OK"
+        '200':
+          description: OK
           content:
             application/json:
               schema:
@@ -32,8 +43,8 @@ paths:
                         description: provides basic information on the action result
                   body:
                     $ref: '#/components/schemas/contractJson'
-        401:
-          description: "NOT FOUND"
+        '401':
+          description: NOT FOUND
           content:
             application/json:
               schema:
@@ -57,9 +68,23 @@ paths:
     post:
       summary: deletes a contract
       operationId: deleteContract
+      requestBody:
+        description: contains information about the contract to delete
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  description: the id of the contract
+                name:
+                  type: string
+                  description: name of the contract for double-check
       responses:
-        200:
-          description: "OK"
+        '200':
+          description: OK
           content:
             application/json:
               schema:
@@ -79,8 +104,8 @@ paths:
                         description: provides basic information on the action result
                   body:
                     $ref: '#/components/schemas/contractJson'
-        400:
-          description: "BAD REQUEST"
+        '400':
+          description: BAD REQUEST
           content:
             application/json:
               schema:
@@ -100,8 +125,8 @@ paths:
                         description: provides basic information on the action result
                   body:
                     $ref: '#/components/schemas/contractJson'
-        422:
-          description: "UNPROCESSABLE ENTITY"
+        '422':
+          description: UNPROCESSABLE ENTITY
           content:
             application/json:
               schema:
@@ -126,8 +151,8 @@ paths:
       summary: fetches all contracts
       operationId: getAllContracts
       responses:
-        200:
-          description: "OK"
+        '200':
+          description: OK
           content:
             application/json:
               schema:
@@ -145,14 +170,24 @@ paths:
                           - "RC_GEN_00"
                         description: provides basic information on the action result
                   body:
-                    $ref: '#/components/schemas/contractJson'
-  /get:
+                    type: array
+                    description: list of all contracts
+                    items:
+                      $ref: '#/components/schemas/contractJson'
+  /get/{id}:
     get:
       summary: fetches one specific contract
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: id of the requested contract
       operationId: getSingleContract
       responses:
-        200:
-          description: "OK"
+        '200':
+          description: OK
           content:
             application/json:
               schema:
@@ -171,13 +206,34 @@ paths:
                         description: provides basic information on the action result
                   body:
                     $ref: '#/components/schemas/contractJson'
-  /change:
+  /change/{id}:
     patch:
       summary: updates a contract
       operationId: updateContract
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: id of the requested contract
+      requestBody:
+        description: contains the key and new value
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                  description: key name
+                value:
+                  type: string
+                  description: new value for the key
       responses:
-        200:
-          description: "OK"
+        '200':
+          description: OK
           content:
             application/json:
               schema:
@@ -198,7 +254,7 @@ paths:
                   body:
                     $ref: '#/components/schemas/contractJson'
         409:
-          description: "CONFLICT"
+          description: CONFLICT
           content:
             application/json:
               schema:

@@ -19,7 +19,7 @@ keeping these data in a quite secure place (i. e. the local machine) this softwa
 ## General info
 * Status: under development
 * Version: (0.0.1 somewhere in progress)
-* Build status: (implementation with Issue #8)
+* Build status: [![backend-CI](https://github.com/Metallist-dev/contractCollection/actions/workflows/ci-backend.yaml/badge.svg?branch=intial-implementation)](https://github.com/Metallist-dev/contractCollection/actions/workflows/ci-backend.yaml)
 * Code Coverage: (implementation with Issue #8)
 * Licence: no licence until now - **thereby all rights reserved** *(please ask for permission)*
 
@@ -37,6 +37,7 @@ keeping these data in a quite secure place (i. e. the local machine) this softwa
 | MariaDB Java Client (JDBC) |    3.0.3    | LGPL 2.1           | Connection to database             |
 | FasterXML Jackson Core     |   2.13.1    | Apache License 2.0 | Processing of JSON used by the API |
 | Springdoc OpenAPI 3.0      |    1.6.6    | Apache License 2.0 | API documentation, Swagger         |
+| OpenAPI generator          |    5.4.0    | Apache License 2.0 | API documentation                  |
 | TestNG                     |     7.5     | Apache License 2.0 | Test implementation                |
 | Mockito                    |   0.4.16    | MIT License        | Test implementation                |
 

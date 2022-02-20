@@ -4,8 +4,10 @@ package de.metallist.backend;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -13,12 +15,20 @@ import org.springframework.web.context.WebApplicationContext;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static de.metallist.backend.ReasonCodes.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.testng.Assert.*;
 
+/**
+ * Test class for contract requests
+ *
+ * @author Metallist-dev
+ * @version 0.1
+ */
 @SpringBootTest(classes = BackendApplication.class)
 public class TestContract extends AbstractTestNGSpringContextTests {
 
@@ -29,6 +39,8 @@ public class TestContract extends AbstractTestNGSpringContextTests {
 
     private int smallestID = -1;
 
+    private final ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+
     @BeforeClass
     public void setup() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
@@ -36,26 +48,29 @@ public class TestContract extends AbstractTestNGSpringContextTests {
 
     @Test
     public void test_00_newContract() throws Exception {
-        String category = "category=Versicherung";
-        String name = "&name=Krankenversicherung";
-        String expenses = "&expenses=108";
-        String cycle = "&cycle=4";
-        String customerNr = "&customerNr=12345";
-        String contractNr = "&contractNr=56789";
-        String startDate = "&startDate=2020-11-16";
-        String contractPeriod = "&contractPeriod=1";
-        String periodOfNotice = "&periodOfNotice=2";
-        String description = "&description=gesetzliche+Krankenversicherung+-+Studententarif";
-        String documentPath = "&documentPath=%2Fhome%2Fmhenke%2FSchreibtisch";
+        ObjectNode requestJson = mapper.createObjectNode();
+        requestJson.put("category", "Versicherung");
+        requestJson.put("name", "Krankenversicherung");
+        requestJson.put("expenses", 100);
+        requestJson.put("cycle", 12);
+        requestJson.put("customerNr", "12345");
+        requestJson.put("contractNr", "67890");
+        requestJson.put("startDate", "2022-01-01");
+        requestJson.put("contractPeriod", 1);
+        requestJson.put("periodOfNotice", 2);
+        requestJson.put("description", "gesetzliche Krankenversicherung - Studententarif");
+        requestJson.put("documentPath", "/home/mhenke/Schreibtisch");
 
-        //mockMvc.perform(post("/demo/add?typ=Versicherung&name=Krankenversicherung&kosten=108&turnus=4&beschreibung=Test&dokumentpfad=Test"))
-        mockMvc.perform(post("/demo/add?" + category + name + expenses + cycle + customerNr + contractNr +
-                        startDate + contractPeriod + periodOfNotice + description + documentPath))
+        mockMvc.perform(post("/demo/add")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(requestJson))
+                        .characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().isOk())
                 .andExpect(result -> {
                     String answer = result.getResponse().getContentAsString();
-                    System.out.println(answer);
-                    assertFalse(answer.contains("Error"));
+                    JsonNode answerJson = mapper.readTree(answer);
+                    assertEquals(answerJson.get("head").get("reasonCode").textValue(), RC_CREATE_SUCCESS.getCodenumber());
+                    assertFalse(answerJson.get("body").isEmpty());
                 });
     }
 
@@ -63,79 +78,81 @@ public class TestContract extends AbstractTestNGSpringContextTests {
     public void test_01_deleteContract() throws Exception {
         this.test_00_newContract();
 
-        ObjectMapper mapper = new ObjectMapper();
-        AtomicReference<String> dataJson = new AtomicReference<>("");
-        mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+        AtomicReference<JsonNode> contractJson = new AtomicReference<>();
 
         mockMvc.perform(get("/demo/all"))
                 .andExpect(status().isOk())
                 .andExpect(result -> {
                     String answer = result.getResponse().getContentAsString();
-                    String outputJson = mapper.writeValueAsString(mapper.readTree(answer));
-                    dataJson.set(outputJson);
-                    System.out.println(outputJson);
+                    contractJson.set(mapper.readTree(answer).get("body"));
                     assertFalse(answer.isEmpty());
                 });
 
-        JsonNode idNode = mapper.readValue(dataJson.get(), JsonNode.class).get(0).get("id");
-        String id = "&id=" + idNode.asText();
-        String name = "&name=Krankenversicherung";
+        ObjectNode requestJson = mapper.createObjectNode();
+        while (contractJson.get() == null) {wait(1000);}
+        JsonNode json = contractJson.get();
+        requestJson.put("id", contractJson.get().get(0).get("id").asInt());
+        requestJson.put("name", contractJson.get().get(0).get("name").asText());
 
-        mockMvc.perform(post("/demo/delete?" + id + name))
+        mockMvc.perform(post("/demo/delete")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(requestJson))
+                        .characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().isOk())
                 .andExpect(result -> {
-                    boolean fehler = result.getResponse().getContentAsString().contains("Error");
-                    if (fehler) fail();
+                    JsonNode responseJson = mapper.readTree(result.getResponse().getContentAsString());
+                    assertEquals(responseJson.get("head").get("reasonCode").asText(), RC_DELETE_SUCCESS.getCodenumber());
+                    assertFalse(responseJson.get("body").isEmpty());
                 });
     }
 
     @Test
     public void test_02_readAllContracts() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
 
         mockMvc.perform(get("/demo/all"))
                 .andExpect(status().isOk())
                 .andExpect(result -> {
-                    String answer = result.getResponse().getContentAsString();
-                    String outputJson = mapper.writeValueAsString(mapper.readTree(answer));
-                    System.out.println(outputJson);
-                    assertFalse(answer.isEmpty());
+                    JsonNode answer = mapper.readTree(result.getResponse().getContentAsString());
+                    assertEquals(answer.get("head").get("reasonCode").asText(), RC_GENERAL_SUCCESS.getCodenumber());
+                    assertFalse(answer.get("body").isEmpty());
 
-                    JsonNode root = mapper.readTree(answer);
-                    smallestID = Integer.parseInt(root.get(0).get("id").asText());
+                    smallestID = answer.get("body").get(0).get("id").asInt();
                 });
     }
 
     @Test
     public void test_03_readSingleContract() throws Exception {
-        if (smallestID == -1) this.test_02_readAllContracts();
+        this.test_02_readAllContracts();
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-
-        mockMvc.perform(get("/demo/get?id=" + smallestID))
+        mockMvc.perform(get("/demo/get/" + smallestID))
                 .andExpect(status().isOk())
                 .andExpect(result -> {
-                    String answer = result.getResponse().getContentAsString();
-                    String outputJson = mapper.writeValueAsString(mapper.readTree(answer));
-                    System.out.println(outputJson);
-                    assertFalse(answer.isEmpty());
-                    assertFalse(answer.contains("Error"));
+                    JsonNode answer = mapper.readTree(result.getResponse().getContentAsString());
+                    assertEquals(answer.get("head").get("reasonCode").asText(), RC_GENERAL_SUCCESS.getCodenumber());
+                    assertFalse(answer.get("body").isEmpty());
                 });
     }
 
     @Test
     public void test_04_updateContract() throws Exception {
         if (smallestID == -1) this.test_02_readAllContracts();
+        String newValue = "Testversicherung";
 
-        mockMvc.perform(patch("/demo/change/"+ smallestID +"?key=name&value=Testversicherung"))
+        ObjectNode requestJson = mapper.createObjectNode();
+        requestJson.put("id", smallestID);
+        requestJson.put("key", "name");
+        requestJson.put("value", newValue);
+
+        mockMvc.perform(patch("/demo/change/"+ smallestID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(requestJson))
+                        .characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().isOk())
                 .andExpect(result -> {
-                    String answer = result.getResponse().getContentAsString();
-                    System.out.println(answer);
-                    assertFalse(answer.isEmpty());
-                    assertFalse(answer.contains("Error"));
+                    JsonNode answer = mapper.readTree(result.getResponse().getContentAsString());
+                    assertEquals(answer.get("head").get("reasonCode").asText(), RC_UPDATE_SUCCESS.getCodenumber());
+                    assertFalse(answer.get("body").isEmpty());
+                    assertEquals(answer.get("body").get("name").textValue(), newValue);
                 });
     }
 }

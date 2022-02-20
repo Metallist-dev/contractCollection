@@ -1,0 +1,7 @@
+{
+  "head": {
+    "message": "#MESSAGE#",
+    "reasonCode": "#REASON-CODE#"
+  },
+  "body": {}
+}

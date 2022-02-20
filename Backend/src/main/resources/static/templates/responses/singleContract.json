@@ -7,13 +7,13 @@
     "id": 0,
     "category": "#CATEGORY#",
     "name": "#NAME#",
-    "expenses": "#EXPENSES#",
-    "cycle": "#CYCLE#",
+    "expenses": 0.00,
+    "cycle": 0,
     "customerNr": "#CUSTOMER#",
     "contractNr": "#CONTRACT#",
     "startDate": "#STARTDATE#",
-    "contractPeriod": "#CONTRACTPERIOD#",
-    "periodOfNotice": "#NOTICEPERIOD#",
+    "contractPeriod": 0,
+    "periodOfNotice": 0,
     "description": "#DESCRIPTION#",
     "documentPath": "#DOCUMENTS PATH#"
   }

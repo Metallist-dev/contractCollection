@@ -1,18 +1,17 @@
 package de.metallist.backend;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URLDecoder;
+import java.util.Arrays;
 import java.util.Optional;
 
-import static de.metallist.backend.ReasonCodes.RC_DELETE_MISSING;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static de.metallist.backend.ReasonCodes.*;
+import static org.springframework.http.HttpStatus.*;
 
 /**
  * Controller, which handles the requests to the REST-API
@@ -33,83 +32,76 @@ public class MainController {
 
     /**
      * adds a new contract
-     * @param category          category
-     * @param name              readable name
-     * @param expenses          costs per payment
-     * @param cycle             cycle of payment (see {@link Contract#cycle})
-     * @param customerNr        ID of customer
-     * @param contractNr        ID of contract
-     * @param startDate         start of the contract in format "YYYY-MM-DD"
-     * @param contractPeriod    length of a contractual period
-     * @param periodOfNotice    length of a period of notice in weeks
-     * @param description       short description of content
-     * @param documentPath      path to folder with documents
+     * @param contractJson      holds all data of the new contract
      * @return added contract or empty contract
      */
-    @SuppressWarnings("JavadocReference")
     @PostMapping(path = "/add")
-    public ResponseEntity<Contract> addContract(
-            @RequestParam String category,
-            @RequestParam String name,
-            @RequestParam String expenses,
-            @RequestParam String cycle,
-            @RequestParam String customerNr,
-            @RequestParam String contractNr,
-            @RequestParam String startDate,
-            @RequestParam String contractPeriod,
-            @RequestParam String periodOfNotice,
-            @RequestParam String description,
-            @RequestParam String documentPath
-            ) {
+    public ResponseEntity<JsonNode> addContract(@RequestBody JsonNode contractJson) {
         try {
-            Contract contract = new Contract();
-            contract.newContract(
-                    decode(category), decode(name), decode(expenses), decode(cycle), decode(customerNr),
-                    decode(contractNr), decode(startDate), decode(contractPeriod), decode(periodOfNotice),
-                    decode(description), decode(documentPath)
-            );
+            String category = contractJson.get("category").textValue();
+            String name = contractJson.get("name").textValue();
+            float expenses = contractJson.get("expenses").floatValue();
+            int cycle = contractJson.get("cycle").intValue();
+            String customerNr = contractJson.get("customerNr").textValue();
+            String contractNr = contractJson.get("contractNr").textValue();
+            String startDate = contractJson.get("startDate").textValue();
+            int contractPeriod = contractJson.get("contractPeriod").intValue();
+            int periodOfNotice = contractJson.get("periodOfNotice").intValue();
+            String description = contractJson.get("description").asText();
+            String documentPath = contractJson.get("documentPath").asText();
+
 
             int maxID = 1;
             for (Contract v : contractRepository.findAll()) {
                 if (v.getId() == maxID) maxID = v.getId() + 1;
             }
-            contract.setId(maxID);
+
+            Contract contract = new Contract(
+                    maxID, category, name, expenses, cycle, customerNr, contractNr, startDate, contractPeriod,
+                    periodOfNotice, description, documentPath
+            );
 
             contractRepository.save(contract);
 
-            return ResponseEntity.ok(contract);
+            return ResponseEntity.ok(HttpResponse.requestSingleContract(RC_CREATE_SUCCESS, contract));
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(NOT_FOUND).body(new Contract());
+            return ResponseEntity
+                    .status(NOT_FOUND)
+                    .body(HttpResponse.requestSingleContract(RC_CREATE_ERROR, new Contract()));
         }
     }
 
     /**
      * deletes a specified contract
-     * @param id   primary key of the contract
-     * @param name name for double-check
-     * @return     message telling about success/failure
+     * @param request holds all data of the request
+     * @return        message telling about success/failure
      */
     @PostMapping(path = "/delete")
-    public ResponseEntity<String> deleteContract(@RequestParam String id, @RequestParam String name) {
+    public ResponseEntity<JsonNode> deleteContract(@RequestBody JsonNode request) {
+        int id = request.get("id").intValue();
+        String name = request.get("name").textValue();
+
         try {
             log.info("Try to delete the contract with ID " + id + ".");
             if (new Contract().deleteContract(contractRepository, id, name)) {
                 log.info("Successfully deleted.");
-                return ResponseEntity.ok("successful");
+                return ResponseEntity.status(OK).body(HttpResponse.requestDeleteContract(RC_DELETE_SUCCESS));
             }
             else {
                 log.error("Something went wrong during deletion of the contract with ID " + id + ".");
-                return ResponseEntity.badRequest().body("Something went wrong.");
+                return ResponseEntity.status(BAD_REQUEST).body(HttpResponse.requestDeleteContract(RC_DELETE_ERROR));
             }
 
         } catch (NullPointerException npe) {
             String message = RC_DELETE_MISSING + ": the contract with ID " + id + " and name " +  name + " is unavailable.";
-            System.out.println(message);
-            return ResponseEntity.unprocessableEntity().body("Contract with ID " + id + " and name " +  name + " is unavailable.");
+            log.error(message);
+            return ResponseEntity.status(UNPROCESSABLE_ENTITY).body(HttpResponse.requestDeleteContract(RC_DELETE_MISSING));
         } catch (Exception e) {
+            log.error(e.getMessage());
+            log.error(Arrays.toString(e.getStackTrace()));
             e.printStackTrace();
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+            return ResponseEntity.badRequest().body(HttpResponse.requestDeleteContract(RC_GENERAL_ERROR));
         }
     }
 
@@ -118,37 +110,48 @@ public class MainController {
      * @return list of all contracts
      */
     @GetMapping(path = "/all")
-    public ResponseEntity<Iterable<Contract>> getAllContracts() {
+    public ResponseEntity<JsonNode> getAllContracts() {
         log.info("GET-Request for all contracts.");
-        return ResponseEntity.ok(contractRepository.findAll());
+        return ResponseEntity.status(OK).body(HttpResponse.requestGetAllContracts(contractRepository.findAll()));
     }
 
     /**
      * fetches a specified contract
-     * @param id   contract ID (primary key)
+     * @param id   id of the requested contract
      * @return     contract or null
      */
-    @GetMapping(path = "/get")
-    public ResponseEntity<Contract> getSingleContract(@RequestParam String id) { return ResponseEntity.ok(new Contract().getContract(contractRepository, id)); }
+    @GetMapping(path = "/get/{id}")
+    public ResponseEntity<JsonNode> getSingleContract(@PathVariable int id) {
+        log.info("GET-Request for single contract with id " + id);
+        //int id = jsonNode.intValue();
+        Contract contract = new Contract().getContract(contractRepository, id);
+        if (contract != null) return ResponseEntity.ok(HttpResponse.requestSingleContract(RC_GENERAL_SUCCESS, contract));
+        else return ResponseEntity.status(NOT_FOUND).body(HttpResponse.requestSingleContract(RC_GENERAL_ERROR, new Contract()));
+    }
 
+    /**
+     * changes some information on a contract (only one key per request!)
+     * @param id      id of the contract
+     * @param request key and value which will be updated
+     * @return        updated contract or empty contract
+     */
     @PatchMapping(path = "/change/{id}")
-    public ResponseEntity<Contract> updateContract(@PathVariable int id, @RequestParam String key, @RequestParam String value) {
+    public ResponseEntity<JsonNode> updateContract(@PathVariable int id, @RequestBody JsonNode request) {
+        log.info("PATCH-Request for single contract with id " + id);
+        String key = request.get("key").textValue();
+        String value = request.get("value").asText();
         Optional<Contract> contractCandidate = contractRepository.findById(id);
         if (contractCandidate.isEmpty()) return null;
         Contract contract = contractCandidate.get();
 
         Contract newContract = contract.updateContract(key, value);
-        //if (newContract==null) return "Es gab einen Fehler bei Änderung des Key " + key + "\n";
-        //if (newContract==null) return ResponseEntity.status(CONFLICT).body("Es gab einen Fehler bei Änderung des Key " + key + "\n");
-        if (newContract ==null) return ResponseEntity.status(CONFLICT).body(new Contract());
+        if (newContract == null) {
+            log.error("Es gab einen Fehler bei Änderung des Key " + key);
+            log.debug("key = " + key + ", value = " + value);
+            return ResponseEntity.status(CONFLICT).body(HttpResponse.requestSingleContract(RC_UPDATE_ERROR, new Contract()));
+        }
         contractRepository.save(contract);
-        //return ResponseEntity.ok("Der Contract " + id + " wurde im Wert " + key + " geändert. Neuer Wert: " + value + "\n");
-        return ResponseEntity.ok(contract);
-    }
-
-
-    /// Helpers
-    private String decode(String input) {
-        return URLDecoder.decode(input, UTF_8);
+        log.info("Der Contract " + id + " wurde im Wert " + key + " geändert. Neuer Wert: " + value);
+        return ResponseEntity.ok(HttpResponse.requestSingleContract(RC_UPDATE_SUCCESS, contract));
     }
 }

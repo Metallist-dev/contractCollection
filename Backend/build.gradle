@@ -2,7 +2,12 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '2.6.3'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'org.openapi.generator' version '5.4.0'
+    //id 'org.asciidoctor.jvm.convert' version '3.3.2'
 }
+
+apply plugin: 'org.openapi.generator'
+//apply plugin: 'org.asciidoctor.jvm.convert'
 
 // VARIABLES
 def SpringVersion = '2.6.3'
@@ -17,7 +22,30 @@ sourceCompatibility = '11'
 
 repositories {
     mavenCentral()
+    //maven {
+    //    url "https://plugins.gradle.org/m2/"
+    //}
 }
+
+openApiGenerate {
+    generatorName = "html2"
+    inputSpec = "$rootDir/src/main/resources/static/contractcollection-api.yaml" as Object
+    outputDir = "$rootDir/docs/openapi" as Object
+}
+
+openApiValidate {
+    inputSpec = "$rootDir/src/main/resources/static/contractcollection-api.yaml" as Object
+}
+
+/*asciidoctor {
+    delete("$buildDir/docs")
+    dependsOn 'openApiGenerate'
+    sourceDir file("$buildDir/docs/openapi")
+    //sources {
+    //    include 'index.adoc'
+    //}
+    outputDir file("$buildDir/docs/asciidoc")
+}*/
 
 dependencies {
     /////////////////
@@ -42,7 +70,11 @@ dependencies {
 
     // Apache License 2.0
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test
-    testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: SpringVersion
+    //testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: SpringVersion
+    testImplementation('org.springframework.boot:spring-boot-starter-test:2.6.3')
+    {
+        exclude group: 'junit', module: 'junit'
+    }
 
 
     ////////////
@@ -78,6 +110,14 @@ dependencies {
     // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-common
     //implementation group: 'org.springdoc', name: 'springdoc-openapi-common', version: OpenAPIVersion
 
+    // Apache License 2.0
+    // https://mvnrepository.com/artifact/org.openapitools/openapi-generator-gradle-plugin
+    implementation group: 'org.openapitools', name: 'openapi-generator-gradle-plugin', version: '5.4.0'
+
+    // unknown license
+    // https://mvnrepository.com/artifact/org.asciidoctor/asciidoctor-gradle-jvm
+    //implementation group: 'org.asciidoctor', name: 'asciidoctor-gradle-jvm', version: '3.3.2'
+
 
     // Apache License 2.0
     // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-webmvc-core
@@ -94,9 +134,17 @@ dependencies {
 }
 
 test {
+    testLogging {
+        showStandardStreams = true
+    }
+
     useTestNG() {
+        failFast = false
         useDefaultListeners = true
+        preserveOrder = true
+        groupByInstances = true
         suites 'src/test/java/de/metallist/backend/testsuite.xml'
+        beforeTest {descriptor -> logger.lifecycle("Running Test: " + descriptor)}
     }
 
     reports.html.enabled(false)

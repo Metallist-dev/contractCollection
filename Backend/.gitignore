@@ -6,6 +6,8 @@ logs/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+docs/openapi/.openapi-generator
+docs/openapi/.openapi-generator-ignore
 
 ### STS ###
 .apt_generated
