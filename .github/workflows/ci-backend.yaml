@@ -44,7 +44,9 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: create API documentation
-        run: ./gradlew openApiGenerate
+        run: |
+          ./gradlew openApiGenerate
+          rm -r build/docs/openapi/.openapi-generator && rm build/docs/openapi/.openapi-generator-ignore
 
       - name: create javadoc documentation
         run: ./gradlew javadoc

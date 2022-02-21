@@ -30,7 +30,7 @@ repositories {
 openApiGenerate {
     generatorName = "html2"
     inputSpec = "$rootDir/src/main/resources/static/contractcollection-api.yaml" as Object
-    outputDir = "$rootDir/docs/openapi" as Object
+    outputDir = "$buildDir/docs/openapi" as Object
 }
 
 openApiValidate {
