@@ -37,14 +37,17 @@ jobs:
     needs: test
 
     steps:
+      - name: change to backend
+        run: cd Backend
+
       - name: make gradlew runnable
-        run: chmod +x ./Backend/gradlew
+        run: chmod +x ./gradlew
 
       - name: create API documentation
-        run: ./Backend/gradlew openApiGenerate
+        run: ./gradlew openApiGenerate
 
       - name: create javadoc documentation
-        run: ./Backend/gradlew javadoc
+        run: ./gradlew javadoc
 
       - name: remove unused files from openApi doc
         run: rm -r build/docs/openapi/.openapi-generator && rm build/docs/openapi/.openapi-generator-ignore
