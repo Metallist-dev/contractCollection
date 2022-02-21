@@ -35,11 +35,11 @@ jobs:
   docs:
     runs-on: self-hosted
     needs: test
+    defaults:
+      run:
+        working-directory: Backend
 
     steps:
-      - name: change to backend
-        run: cd Backend
-
       - name: make gradlew runnable
         run: chmod +x ./gradlew
 
