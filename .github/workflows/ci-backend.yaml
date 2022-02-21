@@ -49,12 +49,9 @@ jobs:
       - name: create javadoc documentation
         run: ./gradlew javadoc
 
-      - name: remove unused files from openApi doc
-        run: rm -r build/docs/openapi/.openapi-generator && rm build/docs/openapi/.openapi-generator-ignore
-
       - name: upload docs to artifact
         uses: actions/upload-artifact@v2
         with:
           name: Documentation
-          path: build/docs
+          path: Backend/build/docs
           retention-days: 1
