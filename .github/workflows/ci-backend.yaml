@@ -31,3 +31,27 @@ jobs:
         uses: gradle/gradle-build-action@937999e9cc2425eddc7fd62d1053baf041147db7
         with:
           arguments: -b build.gradle test
+
+  docs:
+    runs-on: self-hosted
+    needs: test
+
+    steps:
+      - name: make gradlew runnable
+        run: chmod +x gradlew
+
+      - name: create API documentation
+        run: ./gradlew openApiGenerate
+
+      - name: create javadoc documentation
+        run: ./gradlew javadoc
+
+      - name: remove unused files from openApi doc
+        run: rm -r build/docs/openapi/.openapi-generator && rm build/docs/openapi/.openapi-generator-ignore
+
+      - name: upload docs to artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: Documentation
+          path: build/docs
+          retention-days: 1

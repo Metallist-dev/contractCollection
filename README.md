@@ -74,7 +74,9 @@ for [Milestone "Beta release"](https://github.com/Metallist-dev/contractCollecti
 ---
 ## Documentation
 
-* [API documentation](Backend/src/main/resources/static/contractcollection-api.yaml)
-* Javadoc documentation *(to be implemented)*
+* API documentation
+  * [raw yaml documentation](Backend/src/main/resources/static/contractcollection-api.yaml)
+  * [rendered html documentation](https://metallist-images.de/github/contractcollection/docs/openapi/index.html)
+* [Javadoc documentation](https://metallist-images.de/github/contractcollection/docs/javadoc/index-all.html)
 
 [Back to top](#table-of-contents)

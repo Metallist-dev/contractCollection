@@ -50,6 +50,7 @@ public class MainController {
             String description = contractJson.get("description").asText();
             String documentPath = contractJson.get("documentPath").asText();
 
+            if (cycle < 1) throw new RuntimeException("The given cycle is below 1 month. Please check the input.");
 
             int maxID = 1;
             for (Contract v : contractRepository.findAll()) {
@@ -65,9 +66,10 @@ public class MainController {
 
             return ResponseEntity.ok(HttpResponse.requestSingleContract(RC_CREATE_SUCCESS, contract));
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
+            log.debug(Arrays.toString(e.getStackTrace()));
             return ResponseEntity
-                    .status(NOT_FOUND)
+                    .status(BAD_REQUEST)
                     .body(HttpResponse.requestSingleContract(RC_CREATE_ERROR, new Contract()));
         }
     }
@@ -88,20 +90,17 @@ public class MainController {
                 log.info("Successfully deleted.");
                 return ResponseEntity.status(OK).body(HttpResponse.requestDeleteContract(RC_DELETE_SUCCESS));
             }
-            else {
-                log.error("Something went wrong during deletion of the contract with ID " + id + ".");
-                return ResponseEntity.status(BAD_REQUEST).body(HttpResponse.requestDeleteContract(RC_DELETE_ERROR));
-            }
+            else throw new RuntimeException("Something went wrong during deletion of the contract with ID \" + id + \".");
 
         } catch (NullPointerException npe) {
             String message = RC_DELETE_MISSING + ": the contract with ID " + id + " and name " +  name + " is unavailable.";
             log.error(message);
-            return ResponseEntity.status(UNPROCESSABLE_ENTITY).body(HttpResponse.requestDeleteContract(RC_DELETE_MISSING));
+            return ResponseEntity.status(NOT_FOUND).body(HttpResponse.requestDeleteContract(RC_DELETE_MISSING));
         } catch (Exception e) {
             log.error(e.getMessage());
             log.error(Arrays.toString(e.getStackTrace()));
             e.printStackTrace();
-            return ResponseEntity.badRequest().body(HttpResponse.requestDeleteContract(RC_GENERAL_ERROR));
+            return ResponseEntity.internalServerError().body(HttpResponse.requestDeleteContract(RC_DELETE_ERROR));
         }
     }
 

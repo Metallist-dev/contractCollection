@@ -52,7 +52,7 @@ public class HttpResponse {
                     .replace("\"contractPeriod\": 0", "\"cycle\": " + contract.getContractPeriod())
                     .replace("\"periodOfNotice\": 0", "\"periodOfNotice\": " + contract.getPeriodOfNotice())
                     .replace("#DESCRIPTION#", contract.getDescription())
-                    .replace("#DOCUMENTS", contract.getDocumentPath());
+                    .replace("#DOCUMENTS PATH#", contract.getDocumentPath());
 
             return mapper.readTree(newJsonString);
         } catch (Exception exception) {

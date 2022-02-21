@@ -21,6 +21,11 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/contractJson'
+            examples:
+              successExample:
+                $ref: '#/components/examples/successExample'
+              failedExample:
+                $ref: '#/components/examples/failedExample'
       responses:
         '200':
           description: OK
@@ -41,67 +46,9 @@ paths:
                           - "RC_GEN_00"
                           - "RC_ADD_00"
                         description: provides basic information on the action result
-                  body:
-                    $ref: '#/components/schemas/contractJson'
-        '401':
-          description: NOT FOUND
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  head:
-                    type: object
-                    properties:
-                      message:
-                        type: string
-                        description: response message with further information
-                      reasonCode:
-                        type: string
-                        enum:
-                          - "RC_ADD_10"
-                          - "RC_GEN_99"
-                        description: provides basic information on the action result
-                  body:
-                    $ref: '#/components/schemas/contractJson'
-  /delete:
-    post:
-      summary: deletes a contract
-      operationId: deleteContract
-      requestBody:
-        description: contains information about the contract to delete
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                  description: the id of the contract
-                name:
-                  type: string
-                  description: name of the contract for double-check
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  head:
-                    type: object
-                    properties:
-                      message:
-                        type: string
-                        description: response message with further information
-                      reasonCode:
-                        type: string
-                        enum:
-                          - "RC_DEL_00"
-                          - "RC_GEN_00"
-                        description: provides basic information on the action result
+                    example:
+                      message: contract created
+                      reasonCode: RC_ADD_00
                   body:
                     $ref: '#/components/schemas/contractJson'
         '400':
@@ -117,16 +64,39 @@ paths:
                       message:
                         type: string
                         description: response message with further information
+                        example: contract creation error
                       reasonCode:
                         type: string
                         enum:
-                          - "RC_DEL_20"
+                          - "RC_ADD_10"
                           - "RC_GEN_99"
                         description: provides basic information on the action result
+                        example: RC_ADD_10
                   body:
-                    $ref: '#/components/schemas/contractJson'
-        '422':
-          description: UNPROCESSABLE ENTITY
+                    $ref: '#/components/schemas/emptyContract'
+  /delete:
+    post:
+      summary: deletes a contract
+      operationId: deleteContract
+      requestBody:
+        description: contains information about the contract to delete
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  description: the id of the contract
+                  example: 1
+                name:
+                  type: string
+                  description: name of the contract for double-check
+                  example: health insurance
+      responses:
+        '200':
+          description: OK
           content:
             application/json:
               schema:
@@ -138,14 +108,65 @@ paths:
                       message:
                         type: string
                         description: response message with further information
+                        example: contract deleted
+                      reasonCode:
+                        type: string
+                        enum:
+                          - "RC_DEL_00"
+                          - "RC_GEN_00"
+                        description: provides basic information on the action result
+                        example: RC_DEL_00
+                  body:
+                    type: object
+                    nullable: true
+        '404':
+          description: NOT FOUND
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  head:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        description: response message with further information
+                        example: contract for deletion missing
                       reasonCode:
                         type: string
                         enum:
                           - "RC_DEL_10"
                           - "RC_GEN_99"
                         description: provides basic information on the action result
+                        example: RC_DEL_10
                   body:
-                    $ref: '#/components/schemas/contractJson'
+                    type: object
+                    nullable: true
+        '500':
+          description: INTERNAL SERVER ERROR
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  head:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        description: response message with further information
+                        example: general error while deletion
+                      reasonCode:
+                        type: string
+                        enum:
+                          - "RC_DEL_20"
+                          - "RC_GEN_99"
+                        description: provides basic information on the action result
+                        example: RC_DEL_20
+                  body:
+                    type: object
+                    nullable: true
   /all:
     get:
       summary: fetches all contracts
@@ -164,11 +185,13 @@ paths:
                       message:
                         type: string
                         description: response message with further information
+                        example: action successful
                       reasonCode:
                         type: string
                         enum:
                           - "RC_GEN_00"
                         description: provides basic information on the action result
+                        example: RC_GEN_00
                   body:
                     type: array
                     description: list of all contracts
@@ -184,6 +207,7 @@ paths:
             type: integer
           required: true
           description: id of the requested contract
+          example: 1
       operationId: getSingleContract
       responses:
         '200':
@@ -199,11 +223,13 @@ paths:
                       message:
                         type: string
                         description: response message with further information
+                        example: action successful
                       reasonCode:
                         type: string
                         enum:
                           - "RC_GEN_00"
                         description: provides basic information on the action result
+                        example: RC_GEN_00
                   body:
                     $ref: '#/components/schemas/contractJson'
   /change/{id}:
@@ -217,6 +243,7 @@ paths:
             type: integer
           required: true
           description: id of the requested contract
+          example: 2
       requestBody:
         description: contains the key and new value
         required: true
@@ -228,9 +255,11 @@ paths:
                 key:
                   type: string
                   description: key name
+                  example: name
                 value:
                   type: string
                   description: new value for the key
+                  example: test insurance
       responses:
         '200':
           description: OK
@@ -245,12 +274,14 @@ paths:
                       message:
                         type: string
                         description: response message with further information
+                        example: contract updated
                       reasonCode:
                         type: string
                         enum:
                           - "RC_UPD_00"
                           - "RC_GEN_00"
                         description: provides basic information on the action result
+                        example: RC_UPD_00
                   body:
                     $ref: '#/components/schemas/contractJson'
         409:
@@ -266,14 +297,16 @@ paths:
                       message:
                         type: string
                         description: response message with further information
+                        example: contract update failed
                       reasonCode:
                         type: string
                         enum:
                           - "RC_UPD_10"
                           - "RC_GEN_99"
                         description: provides basic information on the action result
+                        example: RC_UPD_10
                   body:
-                    $ref: '#/components/schemas/contractJson'
+                    $ref: '#/components/schemas/emptyContract'
 
 components:
   schemas:
@@ -283,35 +316,124 @@ components:
         category:
           type: string
           description: determines the category of a contract
+          example: insurance
         name:
           type: string
           description: some name for the user
+          example: health insurance
         expenses:
           type: number
           format: float
           description: expenses per payment
+          example: 100.0
         cycle:
           type: integer
           minimum: 1
           description: number of payments per year
+          example: 12
         customerNr:
           type: string
           description: id of customer
+          example: 12345
         contractNr:
           type: string
           description: id of the contract
-        startdate:
+          example: 67890
+        startDate:
           type: string
           description: start of the contract in format "YYYY-MM-DD"
+          example: '2022-01-01'
         contractPeriod:
           type: integer
-          description: length of a contractual period
+          description: length of a contractual period in months
+          example: 1
         periodOfNotice:
           type: integer
           description: number of weeks when the contract can be noticed at last before end of a contractual period
+          example: 2
         description:
           type: string
           description: a short description of the contract
+          example: public health insurance - student tariff
         documentPath:
           type: string
           description: place where the important files are located
+          example: /home/user/example
+    emptyContract:
+      type: object
+      properties:
+        category:
+          type: string
+          description: determines the category of a contract
+          example: null
+        name:
+          type: string
+          description: some name for the user
+          example: null
+        expenses:
+          type: number
+          format: float
+          description: expenses per payment
+          example: 0.0
+        cycle:
+          type: integer
+          minimum: 1
+          description: number of payments per year
+          example: 0
+        customerNr:
+          type: string
+          description: id of customer
+          example: null
+        contractNr:
+          type: string
+          description: id of the contract
+          example: null
+        startDate:
+          type: string
+          description: start of the contract in format "YYYY-MM-DD"
+          example: null
+        contractPeriod:
+          type: integer
+          description: length of a contractual period in months
+          example: 0
+        periodOfNotice:
+          type: integer
+          description: number of weeks when the contract can be noticed at last before end of a contractual period
+          example: 0
+        description:
+          type: string
+          description: a short description of the contract
+          example: null
+        documentPath:
+          type: string
+          description: place where the important files are located
+          example: null
+  examples:
+    successExample:
+      summary: successful example
+      value:
+        category: insurance
+        name: health insurance
+        expenses: 100.0
+        cycle: 12
+        customerNr: '12345'
+        contractNr: '67890'
+        startDate: '2022-01-01'
+        contractPeriod: 1
+        periodOfNotice: 2
+        description: public health insurance - student tariff
+        documentPath: /home/user/example
+    failedExample:
+      summary: failed example
+      value:
+        category: insurance
+        name: health insurance
+        expenses: 100.0
+        cycle: 0
+        customerNr: '12345'
+        contractNr: '67890'
+        startDate: '2022-01-01'
+        contractPeriod: 1
+        periodOfNotice: 2
+        description: public health insurance - student tariff
+        documentPath: /home/user/example
