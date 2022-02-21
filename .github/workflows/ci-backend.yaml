@@ -38,13 +38,13 @@ jobs:
 
     steps:
       - name: make gradlew runnable
-        run: chmod +x gradlew
+        run: chmod +x ./Backend/gradlew
 
       - name: create API documentation
-        run: ./gradlew openApiGenerate
+        run: ./Backend/gradlew openApiGenerate
 
       - name: create javadoc documentation
-        run: ./gradlew javadoc
+        run: ./Backend/gradlew javadoc
 
       - name: remove unused files from openApi doc
         run: rm -r build/docs/openapi/.openapi-generator && rm build/docs/openapi/.openapi-generator-ignore
