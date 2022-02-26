@@ -20,7 +20,7 @@ keeping these data in a quite secure place (i. e. the local machine) this softwa
 * Status: under development
 * Version: (0.0.1 somewhere in progress)
 * Build status: [![backend-CI](https://github.com/Metallist-dev/contractCollection/actions/workflows/ci-backend.yaml/badge.svg?branch=intial-implementation)](https://github.com/Metallist-dev/contractCollection/actions/workflows/ci-backend.yaml)
-* Code Coverage: (implementation with Issue #8)
+* Code Coverage: [![coverage](https://metallist-images.de/github/contractcollection/coverage.svg)](https://metallist-images.de/github/contractcollection/coverage.svg)
 * Licence: no licence until now - **thereby all rights reserved** *(please ask for permission)*
 
 [Back to top](#table-of-contents)

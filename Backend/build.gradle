@@ -4,6 +4,7 @@ plugins {
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'org.openapi.generator' version '5.4.0'
     //id 'org.asciidoctor.jvm.convert' version '3.3.2'
+    id "jacoco"
 }
 
 apply plugin: 'org.openapi.generator'
@@ -148,6 +149,33 @@ test {
     }
 
     reports.html.enabled(false)
+
+    finalizedBy jacocoTestReport
+}
+
+jacoco {
+    toolVersion = "0.8.7"
+    reportsDirectory = layout.buildDirectory.dir('docs/jacoco')
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = false
+        csv.required = false
+        html.outputLocation = layout.buildDirectory.dir('docs/jacoco/jacocoHtml')
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.3
+            }
+        }
+    }
 }
 
 /*flyway {

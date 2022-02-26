@@ -51,6 +51,9 @@ jobs:
       - name: create javadoc documentation
         run: ./gradlew javadoc
 
+      - name: create jacoco documentation
+        run: ./gradlew jacocoTestReport
+
       - name: upload docs to artifact
         uses: actions/upload-artifact@v2
         with:
