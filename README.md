@@ -40,7 +40,7 @@ keeping these data in a quite secure place (i. e. the local machine) this softwa
 | OpenAPI generator          |    5.4.0    | Apache License 2.0 | API documentation                  |
 | TestNG                     |     7.5     | Apache License 2.0 | Test implementation                |
 | Mockito                    |   0.4.16    | MIT License        | Test implementation                |
-
+| Jacoco                     |    0.7.8    | EPL 2.0            | Test reports                       |
 
 
 [Back to top](#table-of-contents)
@@ -78,5 +78,6 @@ for [Milestone "Beta release"](https://github.com/Metallist-dev/contractCollecti
   * [raw yaml documentation](Backend/src/main/resources/static/contractcollection-api.yaml)
   * [rendered html documentation](https://metallist-images.de/github/contractcollection/docs/openapi/index.html)
 * [Javadoc documentation](https://metallist-images.de/github/contractcollection/docs/javadoc/index-all.html)
+* [Jacoco coverage report](https://metallist-images.de/github/contractcollection/docs/jacoco/jacocoHtml/index.html)
 
 [Back to top](#table-of-contents)

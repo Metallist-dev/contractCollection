@@ -15,6 +15,7 @@ def SpringVersion = '2.6.3'
 def TestNGVersion = '7.5'
 def JacksonVersion = '2.13.1'
 def OpenAPIVersion = '1.6.6'
+def jacocoVersion = '0.8.7'
 // VARIABLES
 
 group = 'de.metallist'
@@ -132,6 +133,10 @@ dependencies {
     // https://mvnrepository.com/artifact/org.mockito/mockito-testng
     testImplementation group: 'org.mockito', name: 'mockito-testng', version: '0.4.16'
 
+    // EPL 2.0
+    // https://mvnrepository.com/artifact/org.jacoco/org.jacoco.agent
+    testImplementation group: 'org.jacoco', name: 'org.jacoco.agent', version: jacocoVersion
+
 }
 
 test {
@@ -154,8 +159,8 @@ test {
 }
 
 jacoco {
-    toolVersion = "0.8.7"
-    reportsDirectory = layout.buildDirectory.dir('docs/jacoco')
+    toolVersion = jacocoVersion
+    reportsDirectory = layout.buildDirectory.dir('docs/jacoco') as Directory
 }
 
 jacocoTestReport {
