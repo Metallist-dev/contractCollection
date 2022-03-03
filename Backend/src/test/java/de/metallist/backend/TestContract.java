@@ -16,6 +16,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static de.metallist.backend.ReasonCodes.*;
@@ -153,6 +155,54 @@ public class TestContract extends AbstractTestNGSpringContextTests {
                     assertEquals(answer.get("head").get("reasonCode").asText(), RC_UPDATE_SUCCESS.getCodenumber());
                     assertFalse(answer.get("body").isEmpty());
                     assertEquals(answer.get("body").get("name").textValue(), newValue);
+                });
+    }
+
+    @Test
+    public void test_05_importContracts() throws Exception {
+        String filepath = "/home/mhenke/Programmierung/ContractCollection/Backend/src/test/resources/testImport.json";
+
+        ObjectNode requestJson = mapper.createObjectNode();
+        requestJson.put("filepath", filepath);
+        requestJson.put("overwrite", true);
+
+        mockMvc.perform(put("/demo/import")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(requestJson))
+                .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().isOk())
+                .andExpect(result -> {
+                    JsonNode answer = mapper.readTree(result.getResponse().getContentAsString());
+                    assertEquals(answer.get("head").get("reasonCode").textValue(), RC_IMPORT_SUCCESS.getCodenumber());
+                    assertFalse(answer.get("body").isEmpty());
+                    assertEquals(answer.get("body").get(0).get("id").intValue(), 1);
+                });
+    }
+
+    @Test
+    public void test_06_exportContracts() throws Exception {
+        this.test_05_importContracts();
+
+        String filePath = "/home/mhenke/Programmierung/ContractCollection/Backend/src/test/resources/testExport.json";
+
+        Files.deleteIfExists(Paths.get(filePath));
+
+        ObjectNode requestJson = mapper.createObjectNode();
+        requestJson.put("filepath", filePath);
+        JsonNode contracts = mapper.readTree("[{\n    \"id\": 1,\n    \"category\": \"insurance\",\n    \"name\": \"health insurance\",\n    \"expenses\": 100,\n    \"cycle\": 12,\n    \"customerNr\": \"12345\",\n    \"contractNr\": \"67890\",\n    \"startDate\": \"2022-01-01\",\n    \"contractPeriod\": 1,\n    \"periodOfNotice\": 2,\n    \"description\": \"public health insurance - student tariff\",\n    \"documentPath\": \"/home/user/example\"\n  },\n  {\n    \"id\": 2,\n    \"category\": \"insurance\",\n    \"name\": \"health insurance\",\n    \"expenses\": 100,\n    \"cycle\": 12,\n    \"customerNr\": \"12345\",\n    \"contractNr\": \"67890\",\n    \"startDate\": \"2022-01-01\",\n    \"contractPeriod\": 1,\n    \"periodOfNotice\": 2,\n    \"description\": \"public health insurance - student tariff\",\n    \"documentPath\": \"/home/user/example\"\n  }]");
+        requestJson.set("contracts", contracts);
+
+        mockMvc.perform(post("/demo/export")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(requestJson))
+                        .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().isOk())
+                .andExpect(result -> {
+                    JsonNode answer = mapper.readTree(result.getResponse().getContentAsString());
+                    assertEquals(answer.get("head").get("reasonCode").textValue(), RC_EXPORT_SUCCESS.getCodenumber());
+                    assertTrue(Files.exists(Paths.get(filePath)));
+                    String content = Files.readString(Paths.get(filePath));
+                    assertFalse(content.isEmpty());
                 });
     }
 }

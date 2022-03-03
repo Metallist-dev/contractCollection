@@ -11,6 +11,8 @@
                     <include name="test_02_readAllContracts" />
                     <include name="test_03_readSingleContract" />
                     <include name="test_04_updateContract" />
+                    <include name="test_05_importContracts" />
+                    <include name="test_06_exportContracts" />
                 </methods>
             </class>
         </classes>

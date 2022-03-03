@@ -1,12 +1,19 @@
 package de.metallist.backend;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -37,6 +44,9 @@ public class MainController {
      */
     @PostMapping(path = "/add")
     public ResponseEntity<JsonNode> addContract(@RequestBody JsonNode contractJson) {
+        log.info("Add a contract.");
+        log.debug(contractJson.toPrettyString());
+
         try {
             String category = contractJson.get("category").textValue();
             String name = contractJson.get("name").textValue();
@@ -81,6 +91,9 @@ public class MainController {
      */
     @PostMapping(path = "/delete")
     public ResponseEntity<JsonNode> deleteContract(@RequestBody JsonNode request) {
+        log.info("Delete a contract " + request.get("id").intValue());
+        log.debug(request.toPrettyString());
+
         int id = request.get("id").intValue();
         String name = request.get("name").textValue();
 
@@ -111,7 +124,7 @@ public class MainController {
     @GetMapping(path = "/all")
     public ResponseEntity<JsonNode> getAllContracts() {
         log.info("GET-Request for all contracts.");
-        return ResponseEntity.status(OK).body(HttpResponse.requestGetAllContracts(contractRepository.findAll()));
+        return ResponseEntity.status(OK).body(HttpResponse.requestGetAllContracts(RC_GENERAL_SUCCESS, contractRepository.findAll()));
     }
 
     /**
@@ -137,6 +150,8 @@ public class MainController {
     @PatchMapping(path = "/change/{id}")
     public ResponseEntity<JsonNode> updateContract(@PathVariable int id, @RequestBody JsonNode request) {
         log.info("PATCH-Request for single contract with id " + id);
+        log.debug(request.toPrettyString());
+
         String key = request.get("key").textValue();
         String value = request.get("value").asText();
         Optional<Contract> contractCandidate = contractRepository.findById(id);
@@ -152,5 +167,69 @@ public class MainController {
         contractRepository.save(contract);
         log.info("Der Contract " + id + " wurde im Wert " + key + " geändert. Neuer Wert: " + value);
         return ResponseEntity.ok(HttpResponse.requestSingleContract(RC_UPDATE_SUCCESS, contract));
+    }
+
+    /**
+     * imports data from a json-file
+     * @param request contains the path of the file and whether to append or overwrite existing data
+     * @return        status json with the imported or existing contracts
+     */
+    @PutMapping(path = "/import")
+    public ResponseEntity<JsonNode> importFile(@RequestBody JsonNode request) {
+        log.info("Import contracts from file.");
+        log.debug(request.toPrettyString());
+
+        ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+        JsonNode importData = mapper.createObjectNode();
+
+        boolean overwrite = request.get("overwrite").booleanValue();
+        if (overwrite) contractRepository.deleteAll();
+        String filepath = request.get("filepath").asText();
+        log.info("Load file " + filepath);
+
+        try {
+            String content = Files.readString(Paths.get(filepath));
+            System.out.println(content);
+            importData = mapper.readTree(content);
+        } catch (IOException exception) {
+            log.error("Failed to load file from " + filepath);
+            log.debug(Arrays.toString(exception.getStackTrace()));
+        }
+
+        Iterable<Contract> result = Contract.importContracts(contractRepository, importData);
+
+        if (result != null) return ResponseEntity.ok(HttpResponse.requestGetAllContracts(RC_IMPORT_SUCCESS, result));
+        else ResponseEntity.badRequest().body(HttpResponse.requestGetAllContracts(RC_IMPORT_FAILED, contractRepository.findAll()));
+        return null;
+    }
+
+    /**
+     * exports given contracts to json-file
+     * @param request contains path and contracts
+     * @return        status json
+     */
+    @PostMapping(path = "/export")
+    public ResponseEntity<JsonNode> exportToFile(@RequestBody JsonNode request) {
+        log.info("Export given contracts to file.");
+        log.debug(request.toPrettyString());
+
+        String filepath = request.get("filepath").textValue();
+        String contracts = request.get("contracts").toPrettyString();
+        System.out.println("contracts = " + contracts);
+
+        boolean written = false;
+
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(filepath));
+            writer.write(contracts);
+            writer.close();
+            written = true;
+        } catch (Exception e) {
+            log.error("Failed exporting contracts with " + e.getClass());
+            log.debug(e.getMessage());
+        }
+
+        if (written) return ResponseEntity.ok(HttpResponse.requestDeleteContract(RC_EXPORT_SUCCESS));
+        else return ResponseEntity.badRequest().body(HttpResponse.requestDeleteContract(RC_EXPORT_FAILED));
     }
 }

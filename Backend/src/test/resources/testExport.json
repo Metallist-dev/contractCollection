@@ -1,0 +1,27 @@
+[ {
+  "id" : 1,
+  "category" : "insurance",
+  "name" : "health insurance",
+  "expenses" : 100,
+  "cycle" : 12,
+  "customerNr" : "12345",
+  "contractNr" : "67890",
+  "startDate" : "2022-01-01",
+  "contractPeriod" : 1,
+  "periodOfNotice" : 2,
+  "description" : "public health insurance - student tariff",
+  "documentPath" : "/home/user/example"
+}, {
+  "id" : 2,
+  "category" : "insurance",
+  "name" : "health insurance",
+  "expenses" : 100,
+  "cycle" : 12,
+  "customerNr" : "12345",
+  "contractNr" : "67890",
+  "startDate" : "2022-01-01",
+  "contractPeriod" : 1,
+  "periodOfNotice" : 2,
+  "description" : "public health insurance - student tariff",
+  "documentPath" : "/home/user/example"
+} ]

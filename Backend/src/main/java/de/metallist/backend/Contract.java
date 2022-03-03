@@ -2,6 +2,7 @@ package de.metallist.backend;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,9 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 
 /**
@@ -109,7 +108,7 @@ public class Contract {
      */
     public Contract updateContract(String key, String value) {
         switch (key) {
-            case "typ": {
+            case "category": {
                 this.category = value;
                 break;
             }
@@ -117,19 +116,39 @@ public class Contract {
                 this.name = value;
                 break;
             }
-            case "kosten": {
+            case "expenses": {
                 this.expenses = Float.parseFloat(value);
                 break;
             }
-            case "turnus": {
+            case "cycle": {
                 this.cycle = Integer.parseInt(value);
                 break;
             }
-            case "beschreibung": {
+            case "customerNr": {
+                this.customerNr = value;
+                break;
+            }
+            case "contractNr": {
+                this.contractNr = value;
+                break;
+            }
+            case "contractPeriod": {
+                this.contractPeriod = Integer.parseInt(value);
+                break;
+            }
+            case "periodOfNotice": {
+                this.periodOfNotice = Integer.parseInt(value);
+                break;
+            }
+            case "startDate": {
+                this.startDate = value;
+                break;
+            }
+            case "description": {
                 this.description = value;
                 break;
             }
-            case "dokumentpfad": {
+            case "documentPath": {
                 this.documentPath = value;
                 break;
             }
@@ -167,6 +186,40 @@ public class Contract {
             log.debug(Arrays.toString(e.getStackTrace()));
         }
         return node;
+    }
+
+    public static Iterable<Contract> importContracts(Repository repo, JsonNode importJson) {
+        if (importJson.getNodeType() != JsonNodeType.ARRAY) return null;
+
+        for (JsonNode contractJson : importJson) {
+            Contract contract = new Contract();
+
+            contract.setCategory(contractJson.get("category").textValue());
+            contract.setName(contractJson.get("name").textValue());
+            contract.setExpenses(contractJson.get("expenses").floatValue());
+            contract.setCycle(contractJson.get("cycle").intValue());
+            contract.setCustomerNr(contractJson.get("customerNr").textValue());
+            contract.setContractNr(contractJson.get("contractNr").textValue());
+            contract.setStartDate(contractJson.get("startDate").textValue());
+            contract.setContractPeriod(contractJson.get("contractPeriod").intValue());
+            contract.setPeriodOfNotice(contractJson.get("periodOfNotice").intValue());
+            contract.setDescription(contractJson.get("description").textValue());
+            contract.setDocumentPath(contractJson.get("documentPath").textValue());
+
+            int maxID = 1;
+            for (Contract v : repo.findAll()) {
+                if (v.getId() == maxID) maxID++;
+            }
+
+            contract.setId(maxID);
+            try { repo.save(contract); }
+            catch (IllegalArgumentException ex) {
+                log.error(ex.getMessage());
+                log.debug(Arrays.toString(ex.getStackTrace()));
+            }
+        }
+
+        return repo.findAll();
     }
 }
 

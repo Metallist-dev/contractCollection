@@ -19,6 +19,10 @@ public enum ReasonCodes {
     RC_DELETE_ERROR("RC_DEL_20", "general error while deletion"),
     RC_UPDATE_SUCCESS("RC_UPD_00", "contract updated"),
     RC_UPDATE_ERROR("RC_UPD_10", "contract update failed"),
+    RC_IMPORT_SUCCESS("RC_IMP_00", "all contracts imported"),
+    RC_IMPORT_FAILED("RC_IMP_10", "failed to import all contracts"),
+    RC_EXPORT_SUCCESS("RC_EXP_00", "successfully exported contracts"),
+    RC_EXPORT_FAILED("RC_EXP_10", "failed to export all contracts"),
     RC_GENERAL_ERROR("RC_GEN_99", "action failed");
 
     @Getter

@@ -28,7 +28,7 @@ paths:
                 $ref: '#/components/examples/failedExample'
       responses:
         '200':
-          description: OK
+          description: contract created
           content:
             application/json:
               schema:
@@ -52,7 +52,7 @@ paths:
                   body:
                     $ref: '#/components/schemas/contractJson'
         '400':
-          description: BAD REQUEST
+          description: failed to create contract
           content:
             application/json:
               schema:
@@ -96,7 +96,7 @@ paths:
                   example: health insurance
       responses:
         '200':
-          description: OK
+          description: contract deleted
           content:
             application/json:
               schema:
@@ -120,7 +120,7 @@ paths:
                     type: object
                     nullable: true
         '404':
-          description: NOT FOUND
+          description: contract not found
           content:
             application/json:
               schema:
@@ -144,7 +144,7 @@ paths:
                     type: object
                     nullable: true
         '500':
-          description: INTERNAL SERVER ERROR
+          description: internal server error
           content:
             application/json:
               schema:
@@ -173,7 +173,7 @@ paths:
       operationId: getAllContracts
       responses:
         '200':
-          description: OK
+          description: all contracts fetched
           content:
             application/json:
               schema:
@@ -211,7 +211,7 @@ paths:
       operationId: getSingleContract
       responses:
         '200':
-          description: OK
+          description: requested contract fetched
           content:
             application/json:
               schema:
@@ -232,6 +232,28 @@ paths:
                         example: RC_GEN_00
                   body:
                     $ref: '#/components/schemas/contractJson'
+        '404':
+          description: contract not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  head:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        description: response message with further information
+                        example: action failed
+                      reasonCode:
+                        type: string
+                        enum:
+                          - "RC_GEN_99"
+                        description: provides basic information on the action result
+                        example: RC_GEN_99
+                  body:
+                    $ref: '#/components/schemas/emptyContract'
   /change/{id}:
     patch:
       summary: updates a contract
@@ -262,7 +284,7 @@ paths:
                   example: test insurance
       responses:
         '200':
-          description: OK
+          description: contract updated
           content:
             application/json:
               schema:
@@ -284,8 +306,8 @@ paths:
                         example: RC_UPD_00
                   body:
                     $ref: '#/components/schemas/contractJson'
-        409:
-          description: CONFLICT
+        '409':
+          description: a conflict with existing data occured
           content:
             application/json:
               schema:
@@ -307,6 +329,149 @@ paths:
                         example: RC_UPD_10
                   body:
                     $ref: '#/components/schemas/emptyContract'
+  /import:
+    put:
+      summary: used to import from a given path
+      operationId: importFile
+      requestBody:
+        description: contains the path and whether to append or overwrite data
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filepath:
+                  type: string
+                  description: absolute path of the file for import
+                  example: /home/mhenke/Programmierung/ContractCollection/Backend/src/test/resources/testImport.json
+                overwrite:
+                  type: boolean
+                  description: determines whether to replace existing data or append to existing data
+                  example: true
+      responses:
+        '200':
+          description: data successfully imported from file
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  head:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        description: response message with further information
+                        example: all contracts imported
+                      reasonCode:
+                        type: string
+                        enum:
+                          - "RC_IMP_00"
+                          - "RC_GEN_00"
+                        description: provides basic information on the action result
+                        example: RC_IMP_00
+                  body:
+                    type: array
+                    description: list of all contracts
+                    items:
+                      $ref: '#/components/schemas/contractJson'
+        '400':
+          description: import failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  head:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        description: response message with further information
+                        example: failed to import all contracts
+                      reasonCode:
+                        type: string
+                        enum:
+                          - "RC_IMP_10"
+                          - "RC_GEN_99"
+                        description: provides basic information on the action result
+                        example: RC_IMP_10
+                  body:
+                    type: array
+                    description: list of all existing contracts
+                    items:
+                      $ref: '#/components/schemas/contractJson'
+  /export:
+    post:
+      summary: used to export to a given path
+      operationId: exportFile
+      requestBody:
+        description: contains the path and the contracts to export
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filepath:
+                  type: string
+                  description: absolute path of the file for import
+                  example: /home/mhenke/Programmierung/ContractCollection/Backend/src/test/resources/testImport.json
+                contracts:
+                  type: array
+                  description: contains all contracts, which should be exported
+                  items:
+                    $ref: '#/components/schemas/contractJson'
+      responses:
+        '200':
+          description: data successfully exported to file
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  head:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        description: response message with further information
+                        example: all contracts exported
+                      reasonCode:
+                        type: string
+                        enum:
+                          - "RC_EXP_00"
+                          - "RC_GEN_00"
+                        description: provides basic information on the action result
+                        example: RC_EXP_00
+                  body:
+                    type: object
+                    nullable: true
+        '400':
+          description: import failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  head:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        description: response message with further information
+                        example: failed to export all given contracts
+                      reasonCode:
+                        type: string
+                        enum:
+                          - "RC_EXP_10"
+                          - "RC_GEN_99"
+                        description: provides basic information on the action result
+                        example: RC_EXP_10
+                  body:
+                    type: object
+                    nullable: true
 
 components:
   schemas:

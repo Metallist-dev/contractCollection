@@ -10,8 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.InputStream;
 import java.util.Arrays;
 
-import static de.metallist.backend.ReasonCodes.RC_GENERAL_ERROR;
-import static de.metallist.backend.ReasonCodes.RC_GENERAL_SUCCESS;
+import static de.metallist.backend.ReasonCodes.*;
 
 /**
  * implements a bunch of helper methods to fill response jsons
@@ -116,18 +115,19 @@ public class HttpResponse {
      * @param contracts list of contracts
      * @return RC and message in head and list of contracts in body
      */
-    public static JsonNode requestGetAllContracts(Iterable<Contract> contracts) {
+    public static JsonNode requestGetAllContracts(ReasonCodes reasonCode, Iterable<Contract> contracts) {
         ObjectNode root = mapper.createObjectNode();
         ArrayNode body = mapper.createArrayNode();
 
         try {
-            InputStream stream = JsonNode.class.getClassLoader().getResourceAsStream(BASEPATH + "singleContract.json");
+            if (reasonCode == RC_IMPORT_FAILED) throw new RuntimeException(RC_IMPORT_FAILED.getDescription());
+            InputStream stream = JsonNode.class.getClassLoader().getResourceAsStream(BASEPATH + "allContracts.json");
             JsonNode node = mapper.readTree(stream);
             String jsonString = mapper.writeValueAsString(node);
 
             String newJsonString = jsonString
-                    .replace("#MESSAGE#", RC_GENERAL_SUCCESS.getDescription())
-                    .replace("#REASON-CODE#", RC_GENERAL_SUCCESS.getCodenumber());
+                    .replace("#MESSAGE#", reasonCode.getDescription())
+                    .replace("#REASON-CODE#", reasonCode.getCodenumber());
 
             root.set("head", mapper.readTree(newJsonString).get("head"));
         } catch (Exception exception) {
@@ -137,8 +137,8 @@ public class HttpResponse {
 
             ObjectNode head = mapper.createObjectNode();
 
-            head.put("message", RC_GENERAL_ERROR.getDescription());
-            head.put("reasonCode", RC_GENERAL_ERROR.getCodenumber());
+            head.put("message", reasonCode.getDescription());
+            head.put("reasonCode", reasonCode.getCodenumber());
 
             root.set("head", head);
         } finally {
