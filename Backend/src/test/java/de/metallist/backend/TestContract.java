@@ -51,8 +51,8 @@ public class TestContract extends AbstractTestNGSpringContextTests {
     @Test
     public void test_00_newContract() throws Exception {
         ObjectNode requestJson = mapper.createObjectNode();
-        requestJson.put("category", "Versicherung");
-        requestJson.put("name", "Krankenversicherung");
+        requestJson.put("category", "insurance");
+        requestJson.put("name", "health insurance");
         requestJson.put("expenses", 100);
         requestJson.put("cycle", 12);
         requestJson.put("customerNr", "12345");
@@ -60,7 +60,7 @@ public class TestContract extends AbstractTestNGSpringContextTests {
         requestJson.put("startDate", "2022-01-01");
         requestJson.put("contractPeriod", 1);
         requestJson.put("periodOfNotice", 2);
-        requestJson.put("description", "gesetzliche Krankenversicherung - Studententarif");
+        requestJson.put("description", "public health insurance - student tariff");
         requestJson.put("documentPath", "/home/mhenke/Schreibtisch");
 
         mockMvc.perform(post("/demo/add")

@@ -73,7 +73,7 @@ public class HttpResponse {
     }
 
     /**
-     * fills the repsonse body for contract deletion
+     * fills the response body for contract deletion
      *
      * @param reasonCode RC which has to be returned
      * @return Json with RC and message in head and empty body

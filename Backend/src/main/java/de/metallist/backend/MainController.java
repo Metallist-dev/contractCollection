@@ -160,12 +160,12 @@ public class MainController {
 
         Contract newContract = contract.updateContract(key, value);
         if (newContract == null) {
-            log.error("Es gab einen Fehler bei Änderung des Key " + key);
+            log.error("An error occurred during the update of key " + key);
             log.debug("key = " + key + ", value = " + value);
             return ResponseEntity.status(CONFLICT).body(HttpResponse.requestSingleContract(RC_UPDATE_ERROR, new Contract()));
         }
         contractRepository.save(contract);
-        log.info("Der Contract " + id + " wurde im Wert " + key + " geändert. Neuer Wert: " + value);
+        log.info("The Contract number " + id + " was update for key " + key + ". New value: " + value);
         return ResponseEntity.ok(HttpResponse.requestSingleContract(RC_UPDATE_SUCCESS, contract));
     }
 
