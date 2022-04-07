@@ -34,7 +34,6 @@ keeping these data in a quite secure place (i. e. the local machine) this softwa
 | Java                       |     11      | Apache License 2.0 | Basic Implementation               |
 | Spring Boot Framework      |    2.6.3    | Apache License 2.0 | Basic Implementation               |
 | Lombok                     |   1.18.22   | MIT License        | Reduction of boilerplate code      |
-| MariaDB Java Client (JDBC) |    3.0.3    | LGPL 2.1           | Connection to database             |
 | FasterXML Jackson Core     |   2.13.1    | Apache License 2.0 | Processing of JSON used by the API |
 | Springdoc OpenAPI 3.0      |    1.6.6    | Apache License 2.0 | API documentation, Swagger         |
 | OpenAPI generator          |    5.4.0    | Apache License 2.0 | API documentation                  |
@@ -50,9 +49,9 @@ keeping these data in a quite secure place (i. e. the local machine) this softwa
 
 * stores important and useful data regarding contracts
 * implements CRUD[^1]-operations on contracts
-* storage of data in a database
 * communication via REST[^2]-API between frontend and backend
-  * complies with OpenAPI 3.0 standard
+  * documentation complies with OpenAPI 3.0 standard
+* import and export functionality using json-files
 
 [^1]: Create, Read, Update, Delete  
 [^2]: Representational state transfer
@@ -64,8 +63,7 @@ keeping these data in a quite secure place (i. e. the local machine) this softwa
 
 for [Milestone "Beta release"](https://github.com/Metallist-dev/contractCollection/milestone/1)
 * frontend (desktop or web) - see issue #9
-* encryption of data - see issue #5
-* import/export of data via json-files - see issue #5
+* encryption of data - see issues #10 and #13
 * authentication on startup - see issue #10
 
 

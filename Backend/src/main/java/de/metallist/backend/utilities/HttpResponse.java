@@ -1,16 +1,17 @@
-package de.metallist.backend;
+package de.metallist.backend.utilities;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import de.metallist.backend.Contract;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
 import java.util.Arrays;
 
-import static de.metallist.backend.ReasonCodes.*;
+import static de.metallist.backend.utilities.ReasonCodes.RC_IMPORT_FAILED;
 
 /**
  * implements a bunch of helper methods to fill response jsons

@@ -20,7 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static de.metallist.backend.ReasonCodes.*;
+import static de.metallist.backend.utilities.ReasonCodes.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.testng.Assert.*;
