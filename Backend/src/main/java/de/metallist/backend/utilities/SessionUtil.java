@@ -2,6 +2,7 @@ package de.metallist.backend.utilities;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -13,7 +14,13 @@ import org.springframework.stereotype.Component;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
 /**
  * holds the most recent status
@@ -30,9 +37,14 @@ public class SessionUtil {
     @Getter @Setter
     private User user;
 
+    private Preferences preferences;
+
     public SessionUtil() {
         this.contracts = new ArrayList<>();
         this.user = new User();
+        this.preferences = Preferences.userNodeForPackage(de.metallist.backend.utilities.SessionUtil.class);
+
+        this.startup();
     }
 
 
@@ -182,6 +194,35 @@ public class SessionUtil {
     }
 
     /**
+     * imports a list of contracts to th current session
+     * @param filepath      path of file with json
+     * @return              all imported contracts
+     */
+    public ArrayList<Contract> importContracts(String filepath) {
+        log.info("Import contracts from file.");
+
+        ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+        JsonNode importData = mapper.createObjectNode();
+
+        log.info("Load file " + filepath);
+
+        try {
+            String content = Files.readString(Paths.get(filepath));
+            System.out.println(content);
+            importData = mapper.readTree(content);
+        } catch (IOException exception) {
+            log.error("Failed to load file from " + filepath);
+            log.debug(Arrays.toString(exception.getStackTrace()));
+        }
+
+        this.removeAllContracts();
+
+        ArrayList<Contract> result = this.importContracts(importData);
+
+        return this.getContracts();
+    }
+
+    /**
      * exports all contracts to the specified file
      * @param filepath  path to where the file should be stored
      * @return          status whether successfully written or not
@@ -209,8 +250,29 @@ public class SessionUtil {
     private String contractsToPrettyString() {
         ObjectMapper mapper = new ObjectMapper();
         ArrayNode arrayNode = mapper.valueToTree(contracts);
-        ObjectNode contracts = mapper.createObjectNode();
-        JsonNode result = contracts.set("contracts", arrayNode);
-        return result.toPrettyString();
+        return arrayNode.toPrettyString();
+    }
+
+    protected boolean startup() {
+        System.out.println(System.getenv("PWD"));
+        try {
+            if (preferences.keys().length == 0) {
+                String filepath = System.getenv("PWD") + "/contracts.json";
+                preferences.put("Filepath", filepath);
+            } else {
+                String fallbackpath = System.getenv("PWD") + "/contracts.json";
+                String filepath = preferences.get("Filepath", fallbackpath);
+                contracts = this.importContracts(filepath);
+            }
+        } catch (BackingStoreException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    public boolean prepareShutdown() {
+        String filepath = preferences.get("Filepath", "");
+        return this.export(filepath);
     }
 }

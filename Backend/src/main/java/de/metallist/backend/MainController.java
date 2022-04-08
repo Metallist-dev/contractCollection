@@ -7,6 +7,7 @@ import de.metallist.backend.utilities.HttpResponse;
 import de.metallist.backend.utilities.SessionUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -216,5 +217,23 @@ public class MainController {
 
         if (session.export(filepath)) return ResponseEntity.ok(HttpResponse.requestDeleteContract(RC_EXPORT_SUCCESS));
         else return ResponseEntity.badRequest().body(HttpResponse.requestDeleteContract(RC_EXPORT_FAILED));
+    }
+
+    /**
+     * prepares a shutdown
+     * @return  status 200 or 500
+     */
+    @GetMapping("/shutdown")
+    public ResponseEntity<JsonNode> prepareShutdown() {
+        log.info("Shutdown requested");
+        boolean success = session.prepareShutdown();
+        if (success) {
+            log.info("data export successful");
+            return ResponseEntity.ok().build();
+        }
+        else {
+            log.error("data export not successful!");
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }

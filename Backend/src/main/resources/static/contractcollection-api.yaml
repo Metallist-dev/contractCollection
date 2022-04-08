@@ -405,7 +405,7 @@ paths:
   /export:
     post:
       summary: used to export to a given path
-      operationId: exportFile
+      operationId: exportToFile
       requestBody:
         description: contains the path and the contracts to export
         required: true
@@ -472,6 +472,15 @@ paths:
                   body:
                     type: object
                     nullable: true
+  /shutdown:
+    get:
+      summary: prepares a shutdown of the application
+      operationId: prepareShutdown
+      responses:
+        '200':
+          description: data successfully exported to file
+        '500':
+          description: import failed
 
 components:
   schemas:
