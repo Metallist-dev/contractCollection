@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.metallist.backend.Contract;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -26,7 +24,7 @@ import java.util.prefs.Preferences;
  * holds the most recent status
  *
  * @author Metallist-dev
- * @version 0.1
+ * @version 0.2
  */
 @Slf4j
 @Component
@@ -37,7 +35,8 @@ public class SessionUtil {
     @Getter @Setter
     private User user;
 
-    private Preferences preferences;
+    @Getter
+    private final Preferences preferences;
 
     public SessionUtil() {
         this.contracts = new ArrayList<>();
@@ -54,7 +53,10 @@ public class SessionUtil {
      * @return             object of the contract
      */
     public Contract getSingleContract(int id) {
-        return contracts.get(id);
+        for (Contract c : contracts) {
+            if (c.getId() == id) return c;
+        }
+        return null;
     }
 
     /**
@@ -81,8 +83,10 @@ public class SessionUtil {
      * @return             boolean, which informs about success/failure
      */
     public boolean removeContract(int id) {
-        Contract toRemove = contracts.get(id);
-        return contracts.remove(id).equals(toRemove);
+        for (Contract c : contracts) {
+            if (c.getId() == id) return removeContract(c);
+        }
+        return false;
     }
 
     /**
@@ -159,7 +163,7 @@ public class SessionUtil {
      * @param importJson    json, which contains a list of contracts
      * @return              all imported contracts
      */
-    public ArrayList<Contract> importContracts(JsonNode importJson) {
+    private ArrayList<Contract> importContracts(JsonNode importJson) {
         if (importJson.getNodeType() != JsonNodeType.ARRAY) return null;
 
         for (JsonNode contractJson : importJson) {
@@ -202,24 +206,19 @@ public class SessionUtil {
         log.info("Import contracts from file.");
 
         ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
-        JsonNode importData = mapper.createObjectNode();
+        JsonNode importData;
 
         log.info("Load file " + filepath);
 
         try {
             String content = Files.readString(Paths.get(filepath));
-            System.out.println(content);
             importData = mapper.readTree(content);
-        } catch (IOException exception) {
+        } catch (Exception exception) {
             log.error("Failed to load file from " + filepath);
             log.debug(Arrays.toString(exception.getStackTrace()));
+            return this.getContracts();
         }
-
-        this.removeAllContracts();
-
-        ArrayList<Contract> result = this.importContracts(importData);
-
-        return this.getContracts();
+        return this.importContracts(importData);
     }
 
     /**
@@ -253,8 +252,10 @@ public class SessionUtil {
         return arrayNode.toPrettyString();
     }
 
-    protected boolean startup() {
-        System.out.println(System.getenv("PWD"));
+    /**
+     * loads or creates the preferences for file location
+     */
+    protected void startup() {
         try {
             if (preferences.keys().length == 0) {
                 String filepath = System.getenv("PWD") + "/contracts.json";
@@ -265,12 +266,16 @@ public class SessionUtil {
                 contracts = this.importContracts(filepath);
             }
         } catch (BackingStoreException e) {
-            e.printStackTrace();
-            return false;
+            log.error("Session util didn't start up correctly!");
+            log.debug(e.getMessage());
+            log.debug(Arrays.toString(e.getStackTrace()));
         }
-        return true;
     }
 
+    /**
+     * tries to export the current state into a file
+     * @return true if export successful
+     */
     public boolean prepareShutdown() {
         String filepath = preferences.get("Filepath", "");
         return this.export(filepath);

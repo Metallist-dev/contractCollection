@@ -1,20 +1,14 @@
 package de.metallist.backend;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import de.metallist.backend.utilities.HttpResponse;
 import de.metallist.backend.utilities.SessionUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -92,7 +86,7 @@ public class MainController {
      */
     @PostMapping(path = "/delete")
     public ResponseEntity<JsonNode> deleteContract(@RequestBody JsonNode request) {
-        log.info("Delete a contract " + request.get("id").intValue());
+        log.info("Delete a contract with ID " + request.get("id").intValue());
         log.debug(request.toPrettyString());
 
         int id = request.get("id").intValue();
@@ -102,10 +96,10 @@ public class MainController {
         try {
             log.info("Try to delete the contract with ID " + id + ".");
             if (session.removeContract(id)) {
-                log.info("Successfully deleted.");
+                log.info("Successfully deleted by ID.");
                 return ResponseEntity.status(OK).body(HttpResponse.requestDeleteContract(RC_DELETE_SUCCESS));
             } else if (session.removeContract(contract)) {
-                log.info("Successfully deleted.");
+                log.info("Successfully deleted by object.");
                 return ResponseEntity.status(OK).body(HttpResponse.requestDeleteContract(RC_DELETE_SUCCESS));
             } else throw new RuntimeException("Something went wrong during deletion of the contract with ID \" + id + \".");
 
@@ -157,7 +151,6 @@ public class MainController {
 
         String key = request.get("key").textValue();
         String value = request.get("value").asText();
-        Contract contract = session.getSingleContract(id);
 
         Contract newContract = session.updateContract(id, key, value);
         if (newContract == null) {
@@ -166,7 +159,7 @@ public class MainController {
             return ResponseEntity.status(CONFLICT).body(HttpResponse.requestSingleContract(RC_UPDATE_ERROR, new Contract()));
         }
         log.info("The Contract number " + id + " was update for key " + key + ". New value: " + value);
-        return ResponseEntity.ok(HttpResponse.requestSingleContract(RC_UPDATE_SUCCESS, contract));
+        return ResponseEntity.ok(HttpResponse.requestSingleContract(RC_UPDATE_SUCCESS, newContract));
     }
 
     /**
@@ -179,24 +172,11 @@ public class MainController {
         log.info("Import contracts from file.");
         log.debug(request.toPrettyString());
 
-        ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
-        JsonNode importData = mapper.createObjectNode();
-
         boolean overwrite = request.get("overwrite").booleanValue();
         if (overwrite) session.removeAllContracts();
         String filepath = request.get("filepath").asText();
-        log.info("Load file " + filepath);
 
-        try {
-            String content = Files.readString(Paths.get(filepath));
-            System.out.println(content);
-            importData = mapper.readTree(content);
-        } catch (IOException exception) {
-            log.error("Failed to load file from " + filepath);
-            log.debug(Arrays.toString(exception.getStackTrace()));
-        }
-
-        ArrayList<Contract> result = session.importContracts(importData);
+        ArrayList<Contract> result = session.importContracts(filepath);
 
         if (result != null) return ResponseEntity.ok(HttpResponse.requestGetAllContracts(RC_IMPORT_SUCCESS, result));
         else return ResponseEntity.badRequest().body(HttpResponse.requestGetAllContracts(RC_IMPORT_FAILED, session.getContracts()));

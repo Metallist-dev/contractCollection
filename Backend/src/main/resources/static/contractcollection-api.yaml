@@ -449,7 +449,7 @@ paths:
                     type: object
                     nullable: true
         '400':
-          description: import failed
+          description: export failed
           content:
             application/json:
               schema:
@@ -480,7 +480,7 @@ paths:
         '200':
           description: data successfully exported to file
         '500':
-          description: import failed
+          description: export failed
 
 components:
   schemas:

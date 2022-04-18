@@ -63,7 +63,7 @@ keeping these data in a quite secure place (i. e. the local machine) this softwa
 
 for [Milestone "Beta release"](https://github.com/Metallist-dev/contractCollection/milestone/1)
 * frontend (desktop or web) - see issue #9
-* encryption of data - see issues #10 and #13
+* encryption of data - see issue #10
 * authentication on startup - see issue #10
 
 

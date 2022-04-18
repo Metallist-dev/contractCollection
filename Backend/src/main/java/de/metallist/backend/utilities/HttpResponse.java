@@ -134,7 +134,6 @@ public class HttpResponse {
         } catch (Exception exception) {
             log.error(exception.getMessage());
             log.debug(Arrays.toString(exception.getStackTrace()));
-            exception.printStackTrace();
 
             ObjectNode head = mapper.createObjectNode();
 

@@ -1,0 +1,240 @@
+package de.metallist.backend;
+
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import de.metallist.backend.utilities.SessionUtil;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import java.util.ArrayList;
+
+import static de.metallist.backend.utilities.ReasonCodes.*;
+import static org.mockito.Mockito.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+
+/**
+ * Test class for backend controller
+ *
+ * @author Metallist-dev
+ * @version 0.2
+ */
+@SpringBootTest(classes = BackendApplication.class)
+public class MainControllerTest extends AbstractTestNGSpringContextTests {
+
+    @Mock
+    SessionUtil session;
+
+    @InjectMocks
+    MainController controller;
+
+    MockHttpServletRequest request;
+
+    private Contract testContract;
+
+    private final ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+
+    @BeforeClass
+    public void setup() {
+        MockitoAnnotations.openMocks(this);
+        request = new MockHttpServletRequest();
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+
+        this.testContract = new Contract(1000, "insurance", "test insurance", 100.0f, 1,
+                "123abc", "789xyz", "2022-01-01",12, 2,
+                "test description", "/path/to/stuff");
+
+        controller = new MainController(session);
+    }
+
+    @Test
+    public void test_00_newContract() {
+        ObjectNode requestJson = mapper.createObjectNode();
+        requestJson.put("category", "insurance");
+        requestJson.put("name", "health insurance");
+        requestJson.put("expenses", 100);
+        requestJson.put("cycle", 12);
+        requestJson.put("customerNr", "12345");
+        requestJson.put("contractNr", "67890");
+        requestJson.put("startDate", "2022-01-01");
+        requestJson.put("contractPeriod", 1);
+        requestJson.put("periodOfNotice", 2);
+        requestJson.put("description", "public health insurance - student tariff");
+        requestJson.put("documentPath", "/home/mhenke/Schreibtisch");
+
+        when(session.addContract(any(Contract.class))).thenReturn(true);
+
+        ResponseEntity<JsonNode> response = controller.addContract(requestJson);
+
+        assertNotNull(response.getBody());
+        assertEquals(response.getStatusCodeValue(), 200);
+        assertEquals(response.getBody().get("head").get("reasonCode").asText(), RC_CREATE_SUCCESS.getCodenumber());
+
+
+        when(session.addContract(any(Contract.class))).thenReturn(false);
+
+        response = controller.addContract(requestJson);
+
+        assertNotNull(response.getBody());
+        assertEquals(response.getStatusCodeValue(), 400);
+        assertEquals(response.getBody().get("head").get("reasonCode").asText(), RC_CREATE_ERROR.getCodenumber());
+    }
+
+    @Test
+    public void test_01_deleteContract() throws JsonProcessingException {
+        JsonNode requestJson = mapper.readTree("{\"id\": 1, \"name\": \"health insurance\"}");
+
+        when(session.removeContract(anyInt())).thenReturn(true);
+        ResponseEntity<JsonNode> response = controller.deleteContract(requestJson);
+        assertNotNull(response.getBody());
+        assertEquals(response.getStatusCodeValue(), 200);
+        assertEquals(response.getBody().get("head").get("reasonCode").asText(), RC_DELETE_SUCCESS.getCodenumber());
+
+        when(session.removeContract(anyInt())).thenReturn(false);
+        when(session.removeContract(any())).thenReturn(true);
+        response = controller.deleteContract(requestJson);
+        assertNotNull(response.getBody());
+        assertEquals(response.getStatusCodeValue(), 200);
+        assertEquals(response.getBody().get("head").get("reasonCode").asText(), RC_DELETE_SUCCESS.getCodenumber());
+
+        when(session.removeContract(anyInt())).thenReturn(false);
+        when(session.removeContract(any())).thenReturn(false);
+        response = controller.deleteContract(requestJson);
+        assertNotNull(response.getBody());
+        assertEquals(response.getStatusCodeValue(), 500);
+        assertEquals(response.getBody().get("head").get("reasonCode").asText(), RC_DELETE_ERROR.getCodenumber());
+
+        when(session.removeContract(anyInt())).thenThrow(NullPointerException.class);
+        response = controller.deleteContract(requestJson);
+        assertNotNull(response.getBody());
+        assertEquals(response.getStatusCodeValue(), 404);
+        assertEquals(response.getBody().get("head").get("reasonCode").asText(), RC_DELETE_MISSING.getCodenumber());
+
+    }
+
+    @Test
+    public void test_02_readAllContracts() {
+        String filepath = "/home/mhenke/Programmierung/ContractCollection/Backend/src/test/resources/testExport.json";
+        ArrayList<Contract> contracts = session.importContracts(filepath);
+
+        when(session.getContracts()).thenReturn(contracts);
+
+        ResponseEntity<JsonNode> response = controller.getAllContracts();
+
+        assertNotNull(response.getBody());
+        assertEquals(response.getStatusCodeValue(), 200);
+        assertEquals(response.getBody().get("head").get("reasonCode").asText(), RC_GENERAL_SUCCESS.getCodenumber());
+    }
+
+    @Test
+    public void test_03_readSingleContract() {
+
+        when(session.getSingleContract(anyInt())).thenReturn(testContract);
+        ResponseEntity<JsonNode> response = controller.getSingleContract(1000);
+        assertNotNull(response.getBody());
+        assertEquals(response.getStatusCodeValue(), 200);
+        assertEquals(response.getBody().get("head").get("reasonCode").asText(), RC_GENERAL_SUCCESS.getCodenumber());
+
+        when(session.getSingleContract(anyInt())).thenReturn(null);
+        response = controller.getSingleContract(0);
+        assertNotNull(response.getBody());
+        assertEquals(response.getStatusCodeValue(), 404);
+        assertEquals(response.getBody().get("head").get("reasonCode").asText(), RC_GENERAL_ERROR.getCodenumber());
+    }
+
+    @Test
+    public void test_04_updateContract() {
+        String newValue = "testing insurance";
+
+        ObjectNode requestJson = mapper.createObjectNode();
+        requestJson.put("id", 1000);
+        requestJson.put("key", "name");
+        requestJson.put("value", newValue);
+
+        Contract updatedContract = testContract;
+        updatedContract.setName(newValue);
+
+        when(session.updateContract(anyInt(), anyString(), anyString())).thenReturn(updatedContract);
+        ResponseEntity<JsonNode> response = controller.updateContract(1000, requestJson);
+        assertNotNull(response.getBody());
+        assertEquals(response.getStatusCodeValue(), 200);
+        assertEquals(response.getBody().get("body").get("name").asText(), newValue);
+
+        when(session.updateContract(anyInt(), anyString(), anyString())).thenReturn(null);
+        response = controller.updateContract(1000, requestJson);
+        assertNotNull(response.getBody());
+        assertEquals(response.getStatusCodeValue(), 409);
+        assertEquals(response.getBody().get("head").get("reasonCode").asText(), RC_UPDATE_ERROR.getCodenumber());
+    }
+
+    @Test
+    public void test_05_importContracts() {
+        ArrayList<Contract> mockList = new ArrayList<>();
+        mockList.add(testContract);
+        String filepath = "/home/mhenke/Programmierung/ContractCollection/Backend/src/test/resources/testImport.json";
+
+        ObjectNode requestJson = mapper.createObjectNode();
+        requestJson.put("filepath", filepath);
+        requestJson.put("overwrite", true);
+
+        doNothing().when(session).removeAllContracts();
+        when(session.importContracts(anyString())).thenReturn(mockList);
+        ResponseEntity<JsonNode> response = controller.importFile(requestJson);
+        assertNotNull(response.getBody());
+        assertEquals(response.getStatusCodeValue(), 200);
+        assertEquals(response.getBody().get("body").get(0).get("name").asText(), "testing insurance");
+
+        doNothing().when(session).removeAllContracts();
+        when(session.importContracts(anyString())).thenReturn(null);
+        response = controller.importFile(requestJson);
+        assertNotNull(response.getBody());
+        assertEquals(response.getStatusCodeValue(), 400);
+        assertEquals(response.getBody().get("head").get("reasonCode").asText(), RC_IMPORT_FAILED.getCodenumber());
+    }
+
+    @Test
+    public void test_06_exportContracts() throws JsonProcessingException {
+        String filePath = "/home/mhenke/Programmierung/ContractCollection/Backend/src/test/resources/testExport.json";
+
+        ObjectNode requestJson = mapper.createObjectNode();
+        requestJson.put("filepath", filePath);
+        JsonNode contracts = mapper.readTree("[{    \"id\": 1,    \"category\": \"insurance\",    \"name\": \"health insurance\",    \"expenses\": 100,    \"cycle\": 12,    \"customerNr\": \"12345\",    \"contractNr\": \"67890\",    \"startDate\": \"2022-01-01\",    \"contractPeriod\": 1,    \"periodOfNotice\": 2,    \"description\": \"public health insurance - student tariff\",    \"documentPath\": \"/home/user/example\"  },  {    \"id\": 2,    \"category\": \"insurance\",    \"name\": \"health insurance\",    \"expenses\": 100,    \"cycle\": 12,    \"customerNr\": \"12345\",    \"contractNr\": \"67890\",    \"startDate\": \"2022-01-01\",    \"contractPeriod\": 1,    \"periodOfNotice\": 2,    \"description\": \"public health insurance - student tariff\",    \"documentPath\": \"/home/user/example\"  }]");
+        requestJson.set("contracts", contracts);
+
+        when(session.export(anyString())).thenReturn(true);
+        ResponseEntity<JsonNode> response = controller.exportToFile(requestJson);
+        assertNotNull(response.getBody());
+        assertEquals(response.getStatusCodeValue(), 200);
+        assertEquals(response.getBody().get("head").get("reasonCode").asText(), RC_EXPORT_SUCCESS.getCodenumber());
+
+        when(session.export(anyString())).thenReturn(false);
+        response = controller.exportToFile(requestJson);
+        assertNotNull(response.getBody());
+        assertEquals(response.getStatusCodeValue(), 400);
+        assertEquals(response.getBody().get("head").get("reasonCode").asText(), RC_EXPORT_FAILED.getCodenumber());
+    }
+
+    @Test
+    public void test_07_shutdown() {
+        when(session.prepareShutdown()).thenReturn(true);
+        ResponseEntity<JsonNode> response = controller.prepareShutdown();
+        assertEquals(response.getStatusCodeValue(), 200);
+
+        when(session.prepareShutdown()).thenReturn(false);
+        response = controller.prepareShutdown();
+        assertEquals(response.getStatusCodeValue(), 500);
+    }
+}

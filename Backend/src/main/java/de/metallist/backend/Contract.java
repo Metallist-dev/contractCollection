@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,7 +19,6 @@ import java.util.Arrays;
  *
  */
 @Slf4j
-@NoArgsConstructor
 @AllArgsConstructor
 public class Contract {
     @Getter @Setter
@@ -62,6 +60,21 @@ public class Contract {
 
     @Getter @Setter
     private String documentPath;
+
+    public Contract() {
+        this.id = 0;
+        this.category = "";
+        this.name = "";
+        this.expenses = 0.0f;
+        this.cycle = 0;
+        this.customerNr = "";
+        this.contractNr = "";
+        this.startDate = "";
+        this.contractPeriod = 0;
+        this.periodOfNotice = 0;
+        this.description = "";
+        this.documentPath = "";
+    }
 
 
     /**
