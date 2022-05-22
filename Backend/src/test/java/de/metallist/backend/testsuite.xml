@@ -33,9 +33,9 @@
 
             <class name="de.metallist.backend.utilities.EncryptionUtilTest">
                 <methods>
-                    <include name="test_00_generateBasicKey" />
-                    <include name="test_01_generateKeyFromPassword" />
-                    <include name="test_02_generateIV" />
+                    <include name="test_00_generateKeyFromPassword" />
+                    <include name="test_01_generateIV" />
+                    <include name="test_02_compareKeys" />
                     <include name="test_03_encryptDecrypt" />
                 </methods>
             </class>
