@@ -19,12 +19,12 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import static de.metallist.backend.utilities.ReasonCodes.*;
 import static org.mockito.Mockito.*;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.*;
 
 /**
  * Test class for backend controller
@@ -44,6 +44,7 @@ public class MainControllerTest extends AbstractTestNGSpringContextTests {
     MockHttpServletRequest request;
 
     private Contract testContract;
+    private Contract testContract2;
 
     private final ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 
@@ -56,6 +57,9 @@ public class MainControllerTest extends AbstractTestNGSpringContextTests {
         this.testContract = new Contract(1000, "insurance", "test insurance", 100.0f, 1,
                 "123abc", "789xyz", "2022-01-01",12, 2,
                 "test description", "/path/to/stuff");
+        this.testContract2 = new Contract(1000, "insurance", "test insurance #2", 200.0f,
+                1, "123abc", "456qwe", "2022-03-01",12, 2,
+                "test description", "/path/to/other/stuff");
 
         controller = new MainController(session);
     }
@@ -127,8 +131,20 @@ public class MainControllerTest extends AbstractTestNGSpringContextTests {
 
     @Test
     public void test_02_readAllContracts() {
-        String filepath = "/home/mhenke/Programmierung/ContractCollection/Backend/src/test/resources/testExport.json";
-        ArrayList<Contract> contracts = session.importContracts(filepath);
+        String filepath = new File("src/test/resources/testImport.json").getAbsolutePath();
+        ArrayList<Contract> contracts = new ArrayList<>();
+        JsonNode json;
+        try {
+            json = mapper.readTree(new File(filepath));
+            if (json.isArray()) {
+                for (JsonNode node : json) {
+                    Contract contract = mapper.convertValue(node, Contract.class);
+                    contracts.add(contract);
+                }
+            } else throw new RuntimeException("Input json is no array.");
+        } catch (Exception ignore) {
+            fail();
+        }
 
         when(session.getContracts()).thenReturn(contracts);
 
@@ -184,21 +200,23 @@ public class MainControllerTest extends AbstractTestNGSpringContextTests {
     public void test_05_importContracts() {
         ArrayList<Contract> mockList = new ArrayList<>();
         mockList.add(testContract);
-        String filepath = "/home/mhenke/Programmierung/ContractCollection/Backend/src/test/resources/testImport.json";
+        mockList.add(testContract2);
+        String filepath = new File("src/test/resources/testExportedFile.txt").getAbsolutePath();
 
         ObjectNode requestJson = mapper.createObjectNode();
         requestJson.put("filepath", filepath);
+        requestJson.put("password", "123superSecret!");
         requestJson.put("overwrite", true);
 
         doNothing().when(session).removeAllContracts();
-        when(session.importContracts(anyString())).thenReturn(mockList);
+        when(session.loadFile(anyString(), anyString())).thenReturn(mockList);
         ResponseEntity<JsonNode> response = controller.importFile(requestJson);
         assertNotNull(response.getBody());
         assertEquals(response.getStatusCodeValue(), 200);
         assertEquals(response.getBody().get("body").get(0).get("name").asText(), "testing insurance");
 
         doNothing().when(session).removeAllContracts();
-        when(session.importContracts(anyString())).thenReturn(null);
+        when(session.loadFile(anyString(), anyString())).thenReturn(null);
         response = controller.importFile(requestJson);
         assertNotNull(response.getBody());
         assertEquals(response.getStatusCodeValue(), 400);
@@ -207,20 +225,21 @@ public class MainControllerTest extends AbstractTestNGSpringContextTests {
 
     @Test
     public void test_06_exportContracts() throws JsonProcessingException {
-        String filePath = "/home/mhenke/Programmierung/ContractCollection/Backend/src/test/resources/testExport.json";
+        String filepath = new File("src/test/resources/testExportedFile.txt").getAbsolutePath();
 
         ObjectNode requestJson = mapper.createObjectNode();
-        requestJson.put("filepath", filePath);
+        requestJson.put("filepath", filepath);
+        requestJson.put("password", "123superSecret!");
         JsonNode contracts = mapper.readTree("[{    \"id\": 1,    \"category\": \"insurance\",    \"name\": \"health insurance\",    \"expenses\": 100,    \"cycle\": 12,    \"customerNr\": \"12345\",    \"contractNr\": \"67890\",    \"startDate\": \"2022-01-01\",    \"contractPeriod\": 1,    \"periodOfNotice\": 2,    \"description\": \"public health insurance - student tariff\",    \"documentPath\": \"/home/user/example\"  },  {    \"id\": 2,    \"category\": \"insurance\",    \"name\": \"health insurance\",    \"expenses\": 100,    \"cycle\": 12,    \"customerNr\": \"12345\",    \"contractNr\": \"67890\",    \"startDate\": \"2022-01-01\",    \"contractPeriod\": 1,    \"periodOfNotice\": 2,    \"description\": \"public health insurance - student tariff\",    \"documentPath\": \"/home/user/example\"  }]");
         requestJson.set("contracts", contracts);
 
-        when(session.export(anyString())).thenReturn(true);
+        when(session.writeFile(anyString(), anyString())).thenReturn(true);
         ResponseEntity<JsonNode> response = controller.exportToFile(requestJson);
         assertNotNull(response.getBody());
         assertEquals(response.getStatusCodeValue(), 200);
         assertEquals(response.getBody().get("head").get("reasonCode").asText(), RC_EXPORT_SUCCESS.getCodenumber());
 
-        when(session.export(anyString())).thenReturn(false);
+        when(session.writeFile(anyString(), anyString())).thenReturn(false);
         response = controller.exportToFile(requestJson);
         assertNotNull(response.getBody());
         assertEquals(response.getStatusCodeValue(), 400);

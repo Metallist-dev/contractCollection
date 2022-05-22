@@ -47,6 +47,8 @@ jobs:
         run: |
           ./gradlew openApiGenerate
           rm -r build/docs/openapi/.openapi-generator && rm build/docs/openapi/.openapi-generator-ignore
+          ./gradlew generateSwaggerUIBackend
+          rm build/docs/swaggerUI-Backend/index.html && mv build/docs/swaggerUI-Backend/swaggerUI.html build/docs/swaggerUI-Backend/index.html
 
       - name: create javadoc documentation
         run: ./gradlew javadoc

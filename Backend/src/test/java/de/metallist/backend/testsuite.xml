@@ -6,16 +6,15 @@
         <classes>
             <class name = "de.metallist.backend.utilities.SessionUtilTest">
                 <methods>
-                    <include name="test_00_Startup" />
-                    <include name="test_01_AddContract" />
-                    <include name="test_02_GetSingleContract" />
-                    <include name="test_03_RemoveContractById" />
-                    <include name="test_04_RemoveContract" />
-                    <include name="test_05_UpdateContract" />
-                    <include name="test_06_ImportContracts" />
-                    <include name="test_07_Export" />
-                    <include name="test_08_GetContracts" />
-                    <include name="test_09_PrepareShutdown" />
+                    <include name="test_00_AddContract" />
+                    <include name="test_01_GetSingleContract" />
+                    <include name="test_02_RemoveContractById" />
+                    <include name="test_03_RemoveContract" />
+                    <include name="test_04_UpdateContract" />
+                    <include name="test_05_writeFileTest" />
+                    <include name="test_06_loadFileTest" />
+                    <include name="test_07_GetContracts" />
+                    <include name="test_08_PrepareShutdown" />
                 </methods>
             </class>
 
@@ -29,6 +28,15 @@
                     <include name="test_05_importContracts" />
                     <include name="test_06_exportContracts" />
                     <include name="test_07_shutdown" />
+                </methods>
+            </class>
+
+            <class name="de.metallist.backend.utilities.EncryptionUtilTest">
+                <methods>
+                    <include name="test_00_generateBasicKey" />
+                    <include name="test_01_generateKeyFromPassword" />
+                    <include name="test_02_generateIV" />
+                    <include name="test_03_encryptDecrypt" />
                 </methods>
             </class>
         </classes>

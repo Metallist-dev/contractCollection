@@ -58,7 +58,6 @@ public class HttpResponse {
         } catch (Exception exception) {
             log.debug(exception.getMessage());
             log.debug(Arrays.toString(exception.getStackTrace()));
-            exception.printStackTrace();
 
             ObjectNode root = mapper.createObjectNode();
             ObjectNode head = mapper.createObjectNode();
@@ -94,7 +93,6 @@ public class HttpResponse {
         } catch (Exception exception) {
             log.error(exception.getMessage());
             log.debug(Arrays.toString(exception.getStackTrace()));
-            exception.printStackTrace();
 
             ObjectNode root = mapper.createObjectNode();
             ObjectNode head = mapper.createObjectNode();

@@ -2,13 +2,13 @@ openapi: 3.0.0
 info:
   title: Contract collection
   description: collects contracts with all important information
-  version: 0.1.0
+  version: 0.2.0
   contact:
     name: Metallist-dev
     url: https://github.com/Metallist-dev
     email: metallist.images@gmail.com
 servers:
-  - url: 'http://localhost:8080/demo'
+  - url: 'http://localhost:8080'
 paths:
   /add:
     post:
@@ -345,6 +345,10 @@ paths:
                   type: string
                   description: absolute path of the file for import
                   example: /home/mhenke/Programmierung/ContractCollection/Backend/src/test/resources/testImport.json
+                password:
+                  type: string
+                  description: the password to unlock and decrypt the file
+                  example: 123superSecret!
                 overwrite:
                   type: boolean
                   description: determines whether to replace existing data or append to existing data
@@ -418,6 +422,10 @@ paths:
                   type: string
                   description: absolute path of the file for import
                   example: /home/mhenke/Programmierung/ContractCollection/Backend/src/test/resources/testImport.json
+                password:
+                  type: string
+                  description: password for data encryption
+                  example: 123superSecret!
                 contracts:
                   type: array
                   description: contains all contracts, which should be exported
@@ -481,6 +489,112 @@ paths:
           description: data successfully exported to file
         '500':
           description: export failed
+  /actuator/shutdown:
+    post:
+      summary: triggers a graceful shutdown
+      responses:
+        '200':
+          description: shutdown successfully triggered
+#  /unlock:
+#    post:
+#      summary: requests to open or create a certain file with a corresponding password
+#      operationId: login
+#      requestBody:
+#        description: contains filepath, password and whether to create a new file or open an existing one
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              type: object
+#              properties:
+#                filepath:
+#                  type: string
+#                  description: path of requested file
+#                password:
+#                  type: string
+#                  description: provided password
+#                create:
+#                  type: boolean
+#                  description: decides about whether a new file is created or an existing one is opened
+#      responses:
+#        '200':
+#          description: password correct, data encrypted or file created
+#          content:
+#            application/json:
+#              schema:
+#                type: object
+#                properties:
+#                  head:
+#                    type: object
+#                    properties:
+#                      message:
+#                        type: string
+#                        description: response message with further information
+#                        example: access granted
+#                      reasonCode:
+#                        type: string
+#                        enum:
+#                          - "RC_OPE_00"
+#                          - "RC_CRE_00"
+#                          - "RC_GEN_00"
+#                        description: provides basic information on the action result
+#                        example: RC_OPE_00
+#                  body:
+#                    type: array
+#                    nullable: true
+#                    description: list of all existing contracts
+#                    items:
+#                      $ref: '#/components/schemas/contractJson'
+#        '403':
+#          description: password incorrect
+#          content:
+#            application/json:
+#              schema:
+#                type: object
+#                properties:
+#                  head:
+#                    type: object
+#                    properties:
+#                      message:
+#                        type: string
+#                        description: response message with further information
+#                        example: access denied
+#                      reasonCode:
+#                        type: string
+#                        enum:
+#                          - "RC_OPE_10"
+#                          - "RC_CRE_10"
+#                          - "RC_GEN_99"
+#                        description: provides basic information on the action result
+#                        example: RC_OPE_10
+#                  body:
+#                    type: object
+#                    nullable: true
+#        '500':
+#          description: internal error
+#          content:
+#            application/json:
+#              schema:
+#                type: object
+#                properties:
+#                  head:
+#                    type: object
+#                    properties:
+#                      message:
+#                        type: string
+#                        description: response message with further information
+#                        example: action failed
+#                      reasonCode:
+#                        type: string
+#                        enum:
+#                          - "RC_OPE_20"
+#                          - "RC_CRE_20"
+#                          - "RC_GEN_99"
+#                        description: provides basic information on the action result
+#                        example: RC_OPE_20
+#                  body:
+#                    type: object
+#                    nullable: true
 
 components:
   schemas:

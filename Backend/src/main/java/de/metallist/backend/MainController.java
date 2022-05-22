@@ -23,7 +23,7 @@ import static org.springframework.http.HttpStatus.*;
  */
 @Controller
 @Slf4j
-@RequestMapping(path = "/demo")
+@RequestMapping(path = "/")
 public class MainController {
     private final SessionUtil session;
 
@@ -110,7 +110,6 @@ public class MainController {
         } catch (Exception e) {
             log.error(e.getMessage());
             log.error(Arrays.toString(e.getStackTrace()));
-            e.printStackTrace();
             return ResponseEntity.internalServerError().body(HttpResponse.requestDeleteContract(RC_DELETE_ERROR));
         }
     }
@@ -175,8 +174,9 @@ public class MainController {
         boolean overwrite = request.get("overwrite").booleanValue();
         if (overwrite) session.removeAllContracts();
         String filepath = request.get("filepath").asText();
+        String password = request.get("password").asText();
 
-        ArrayList<Contract> result = session.importContracts(filepath);
+        ArrayList<Contract> result = session.loadFile(filepath, password);
 
         if (result != null) return ResponseEntity.ok(HttpResponse.requestGetAllContracts(RC_IMPORT_SUCCESS, result));
         else return ResponseEntity.badRequest().body(HttpResponse.requestGetAllContracts(RC_IMPORT_FAILED, session.getContracts()));
@@ -193,9 +193,10 @@ public class MainController {
         log.debug(request.toPrettyString());
 
         String filepath = request.get("filepath").textValue();
+        String password = request.get("password").textValue();
         log.debug("contracts = " + request.get("contracts").toPrettyString());
 
-        if (session.export(filepath)) return ResponseEntity.ok(HttpResponse.requestDeleteContract(RC_EXPORT_SUCCESS));
+        if (session.writeFile(filepath, password)) return ResponseEntity.ok(HttpResponse.requestDeleteContract(RC_EXPORT_SUCCESS));
         else return ResponseEntity.badRequest().body(HttpResponse.requestDeleteContract(RC_EXPORT_FAILED));
     }
 
@@ -216,4 +217,25 @@ public class MainController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    /*
+    @PostMapping("/unlock")
+    public ResponseEntity<JsonNode> unlockFile(@RequestBody JsonNode request) {
+        ObjectMapper mapper = new ObjectMapper();
+
+        String filepath = request.get("filepath").textValue();
+        String pasword = request.get("password").textValue();
+        log.info("Unlock requested filepath: " + filepath);
+        log.debug(request.toPrettyString());
+
+        boolean success = false;
+        try {
+            if (request.get("create").booleanValue()) success = session.createFile(filepath, pasword);
+            else success = session.loadFile(filepath, pasword);
+        } catch (RuntimeException exception) {
+            ObjectNode response = mapper.createObjectNode();
+            response.put("reasonCode",)
+            return
+        }
+    }*/
 }

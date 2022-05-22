@@ -54,7 +54,7 @@ keeping these data in a quite secure place (i. e. the local machine) this softwa
 * import and export functionality using json-files
 
 [^1]: Create, Read, Update, Delete  
-[^2]: Representational state transfer
+[^2]: Representational State Transfer
 
 [Back to top](#table-of-contents)
 
@@ -75,6 +75,7 @@ for [Milestone "Beta release"](https://github.com/Metallist-dev/contractCollecti
 * API documentation
   * [raw yaml documentation](Backend/src/main/resources/static/contractcollection-api.yaml)
   * [rendered html documentation](https://metallist-images.de/github/contractcollection/docs/openapi/index.html)
+  * [Swagger UI](https://metallist-images.de/github/contractcollection/docs/swaggerUI-Backend/index.html)
 * [Javadoc documentation](https://metallist-images.de/github/contractcollection/docs/javadoc/index-all.html)
 * [Jacoco coverage report](https://metallist-images.de/github/contractcollection/docs/jacoco/jacocoHtml/index.html)
 
