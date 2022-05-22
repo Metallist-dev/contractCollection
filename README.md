@@ -3,7 +3,7 @@
 Keeping track of expenses especially for long-running contracts is oftentimes quite difficult. Additionally, one may 
 have to search quite a long time in huge folders to find the contract number or any secret for authentication.
 Keeping these sensible data in an online cloud service is oftentimes tightly connected to security concerns. To help
-keeping these data in a quite secure place (i. e. the local machine) this software was created.
+keeping these data in a quite secure place (i.e. the local machine) this software was created.
 
 ***attention: although it's the aim to store the data securely, it's still not implemented! It's still in some kind of pre-alpha-state.***
 
@@ -20,7 +20,7 @@ keeping these data in a quite secure place (i. e. the local machine) this softwa
 * Status: under development
 * Version: (0.0.1 somewhere in progress)
 * Build status: [![backend-CI](https://github.com/Metallist-dev/contractCollection/actions/workflows/ci-backend.yaml/badge.svg?branch=main)](https://github.com/Metallist-dev/contractCollection/actions/workflows/ci-backend.yaml)
-* Code Coverage: [![coverage](https://metallist-images.de/github/contractcollection/coverage.svg)](https://metallist-images.de/github/contractcollection/coverage.svg)
+* Code Coverage: [![coverage](https://metallist-images.de/github/contractcollection/main/coverage.svg)](https://metallist-images.de/github/contractcollection/main/coverage.svg)
 * Licence: no licence until now - **thereby all rights reserved** *(please ask for permission)*
 
 [Back to top](#table-of-contents)
@@ -76,8 +76,8 @@ for [Milestone "Beta release"](https://github.com/Metallist-dev/contractCollecti
 
 * API documentation
   * [raw yaml documentation](Backend/src/main/resources/static/contractcollection-api.yaml)
-  * [rendered html documentation](https://metallist-images.de/github/contractcollection/docs/openapi/index.html)
-* [Javadoc documentation](https://metallist-images.de/github/contractcollection/docs/javadoc/index-all.html)
-* [Jacoco coverage report](https://metallist-images.de/github/contractcollection/docs/jacoco/jacocoHtml/index.html)
+  * [rendered html documentation](https://metallist-images.de/github/contractcollection/main/docs/openapi/index.html)
+* [Javadoc documentation](https://metallist-images.de/github/contractcollection/main/docs/javadoc/index-all.html)
+* [Jacoco coverage report](https://metallist-images.de/github/contractcollection/main/docs/jacoco/jacocoHtml/index.html)
 
 [Back to top](#table-of-contents)
