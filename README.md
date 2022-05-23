@@ -19,8 +19,8 @@ keeping these data in a quite secure place (i.e. the local machine) this softwar
 ## General info
 * Status: under development
 * Version: 0.0.1-alpha
-* Build status: [![backend-CI](https://github.com/Metallist-dev/contractCollection/actions/workflows/ci-backend.yaml/badge.svg?branch=security-implementation)](https://github.com/Metallist-dev/contractCollection/actions/workflows/ci-backend.yaml)
-* Code Coverage: [![coverage](https://metallist-images.de/github/contractcollection/security-implementation/coverage.svg)](https://metallist-images.de/github/contractcollection/security-implementation/coverage.svg)
+* Build status: [![backend-CI](https://github.com/Metallist-dev/contractCollection/actions/workflows/ci-backend.yaml/badge.svg?branch=main)](https://github.com/Metallist-dev/contractCollection/actions/workflows/ci-backend.yaml)
+* Code Coverage: [![coverage](https://metallist-images.de/github/contractcollection/main/coverage.svg)](https://metallist-images.de/github/contractcollection/main/coverage.svg)
 * Licence: no licence until now - **thereby all rights reserved** *(please ask for permission)*
 
 [Back to top](#table-of-contents)
@@ -78,9 +78,10 @@ keeping these data in a quite secure place (i.e. the local machine) this softwar
 
 * API documentation
   * [raw yaml documentation](Backend/src/main/resources/static/contractcollection-api.yaml)
-  * [rendered html documentation](https://metallist-images.de/github/contractcollection/security-implementation/docs/openapi/index.html)
-  * [Swagger UI](https://metallist-images.de/github/contractcollection/security-implementation/docs/swaggerUI-Backend/index.html)
-* [Javadoc documentation](https://metallist-images.de/github/contractcollection/security-implementation/docs/javadoc/index-all.html)
-* [Jacoco coverage report](https://metallist-images.de/github/contractcollection/security-implementation/docs/jacoco/jacocoHtml/index.html)
+  * [rendered html documentation](https://metallist-images.de/github/contractcollection/main/docs/openapi/index.html)
+  * [Swagger UI](https://metallist-images.de/github/contractcollection/main/docs/swaggerUI-Backend/index.html)
+* [Javadoc documentation](https://metallist-images.de/github/contractcollection/main/docs/javadoc/index-all.html)
+* [Jacoco coverage report](https://metallist-images.de/github/contractcollection/main/docs/jacoco/jacocoHtml/index.html)
+
 
 [Back to top](#table-of-contents)
