@@ -1,40 +1,35 @@
 package de.metallist.backend;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import de.metallist.backend.utilities.HttpResponse;
+import de.metallist.backend.utilities.SessionUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Optional;
 
-import static de.metallist.backend.ReasonCodes.*;
+import static de.metallist.backend.utilities.ReasonCodes.*;
 import static org.springframework.http.HttpStatus.*;
 
 /**
  * Controller, which handles the requests to the REST-API
  *
  * @author Metallist-dev
- * @version 0.1
+ * @version 0.2
  */
 @Controller
 @Slf4j
-@RequestMapping(path = "/demo")
+@RequestMapping(path = "/")
 public class MainController {
-    private final Repository contractRepository;
+    private final SessionUtil session;
 
     @Autowired
-    public MainController(Repository contractRepository) {
-        this.contractRepository = contractRepository;
+    public MainController(SessionUtil session) {
+        this.session = session;
     }
 
     /**
@@ -63,7 +58,7 @@ public class MainController {
             if (cycle < 1) throw new RuntimeException("The given cycle is below 1 month. Please check the input.");
 
             int maxID = 1;
-            for (Contract v : contractRepository.findAll()) {
+            for (Contract v : session.getContracts()) {
                 if (v.getId() == maxID) maxID = v.getId() + 1;
             }
 
@@ -72,7 +67,7 @@ public class MainController {
                     periodOfNotice, description, documentPath
             );
 
-            contractRepository.save(contract);
+            if (!session.addContract(contract)) throw new RuntimeException("Failed to add contract.");
 
             return ResponseEntity.ok(HttpResponse.requestSingleContract(RC_CREATE_SUCCESS, contract));
         } catch (Exception e) {
@@ -91,19 +86,22 @@ public class MainController {
      */
     @PostMapping(path = "/delete")
     public ResponseEntity<JsonNode> deleteContract(@RequestBody JsonNode request) {
-        log.info("Delete a contract " + request.get("id").intValue());
+        log.info("Delete a contract with ID " + request.get("id").intValue());
         log.debug(request.toPrettyString());
 
         int id = request.get("id").intValue();
         String name = request.get("name").textValue();
+        Contract contract = session.getSingleContract(id);
 
         try {
             log.info("Try to delete the contract with ID " + id + ".");
-            if (new Contract().deleteContract(contractRepository, id, name)) {
-                log.info("Successfully deleted.");
+            if (session.removeContract(id)) {
+                log.info("Successfully deleted by ID.");
                 return ResponseEntity.status(OK).body(HttpResponse.requestDeleteContract(RC_DELETE_SUCCESS));
-            }
-            else throw new RuntimeException("Something went wrong during deletion of the contract with ID \" + id + \".");
+            } else if (session.removeContract(contract)) {
+                log.info("Successfully deleted by object.");
+                return ResponseEntity.status(OK).body(HttpResponse.requestDeleteContract(RC_DELETE_SUCCESS));
+            } else throw new RuntimeException("Something went wrong during deletion of the contract with ID \" + id + \".");
 
         } catch (NullPointerException npe) {
             String message = RC_DELETE_MISSING + ": the contract with ID " + id + " and name " +  name + " is unavailable.";
@@ -112,7 +110,6 @@ public class MainController {
         } catch (Exception e) {
             log.error(e.getMessage());
             log.error(Arrays.toString(e.getStackTrace()));
-            e.printStackTrace();
             return ResponseEntity.internalServerError().body(HttpResponse.requestDeleteContract(RC_DELETE_ERROR));
         }
     }
@@ -124,7 +121,7 @@ public class MainController {
     @GetMapping(path = "/all")
     public ResponseEntity<JsonNode> getAllContracts() {
         log.info("GET-Request for all contracts.");
-        return ResponseEntity.status(OK).body(HttpResponse.requestGetAllContracts(RC_GENERAL_SUCCESS, contractRepository.findAll()));
+        return ResponseEntity.status(OK).body(HttpResponse.requestGetAllContracts(RC_GENERAL_SUCCESS, session.getContracts()));
     }
 
     /**
@@ -135,8 +132,7 @@ public class MainController {
     @GetMapping(path = "/get/{id}")
     public ResponseEntity<JsonNode> getSingleContract(@PathVariable int id) {
         log.info("GET-Request for single contract with id " + id);
-        //int id = jsonNode.intValue();
-        Contract contract = new Contract().getContract(contractRepository, id);
+        Contract contract = session.getSingleContract(id);
         if (contract != null) return ResponseEntity.ok(HttpResponse.requestSingleContract(RC_GENERAL_SUCCESS, contract));
         else return ResponseEntity.status(NOT_FOUND).body(HttpResponse.requestSingleContract(RC_GENERAL_ERROR, new Contract()));
     }
@@ -154,19 +150,15 @@ public class MainController {
 
         String key = request.get("key").textValue();
         String value = request.get("value").asText();
-        Optional<Contract> contractCandidate = contractRepository.findById(id);
-        if (contractCandidate.isEmpty()) return null;
-        Contract contract = contractCandidate.get();
 
-        Contract newContract = contract.updateContract(key, value);
+        Contract newContract = session.updateContract(id, key, value);
         if (newContract == null) {
-            log.error("Es gab einen Fehler bei Änderung des Key " + key);
+            log.error("An error occurred during the update of key " + key);
             log.debug("key = " + key + ", value = " + value);
             return ResponseEntity.status(CONFLICT).body(HttpResponse.requestSingleContract(RC_UPDATE_ERROR, new Contract()));
         }
-        contractRepository.save(contract);
-        log.info("Der Contract " + id + " wurde im Wert " + key + " geändert. Neuer Wert: " + value);
-        return ResponseEntity.ok(HttpResponse.requestSingleContract(RC_UPDATE_SUCCESS, contract));
+        log.info("The Contract number " + id + " was update for key " + key + ". New value: " + value);
+        return ResponseEntity.ok(HttpResponse.requestSingleContract(RC_UPDATE_SUCCESS, newContract));
     }
 
     /**
@@ -179,28 +171,15 @@ public class MainController {
         log.info("Import contracts from file.");
         log.debug(request.toPrettyString());
 
-        ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
-        JsonNode importData = mapper.createObjectNode();
-
         boolean overwrite = request.get("overwrite").booleanValue();
-        if (overwrite) contractRepository.deleteAll();
+        if (overwrite) session.removeAllContracts();
         String filepath = request.get("filepath").asText();
-        log.info("Load file " + filepath);
+        String password = request.get("password").asText();
 
-        try {
-            String content = Files.readString(Paths.get(filepath));
-            System.out.println(content);
-            importData = mapper.readTree(content);
-        } catch (IOException exception) {
-            log.error("Failed to load file from " + filepath);
-            log.debug(Arrays.toString(exception.getStackTrace()));
-        }
-
-        Iterable<Contract> result = Contract.importContracts(contractRepository, importData);
+        ArrayList<Contract> result = session.loadFile(filepath, password);
 
         if (result != null) return ResponseEntity.ok(HttpResponse.requestGetAllContracts(RC_IMPORT_SUCCESS, result));
-        else ResponseEntity.badRequest().body(HttpResponse.requestGetAllContracts(RC_IMPORT_FAILED, contractRepository.findAll()));
-        return null;
+        else return ResponseEntity.badRequest().body(HttpResponse.requestGetAllContracts(RC_IMPORT_FAILED, session.getContracts()));
     }
 
     /**
@@ -214,22 +193,49 @@ public class MainController {
         log.debug(request.toPrettyString());
 
         String filepath = request.get("filepath").textValue();
-        String contracts = request.get("contracts").toPrettyString();
-        System.out.println("contracts = " + contracts);
+        String password = request.get("password").textValue();
+        log.debug("contracts = " + request.get("contracts").toPrettyString());
 
-        boolean written = false;
-
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(filepath));
-            writer.write(contracts);
-            writer.close();
-            written = true;
-        } catch (Exception e) {
-            log.error("Failed exporting contracts with " + e.getClass());
-            log.debug(e.getMessage());
-        }
-
-        if (written) return ResponseEntity.ok(HttpResponse.requestDeleteContract(RC_EXPORT_SUCCESS));
+        if (session.writeFile(filepath, password)) return ResponseEntity.ok(HttpResponse.requestDeleteContract(RC_EXPORT_SUCCESS));
         else return ResponseEntity.badRequest().body(HttpResponse.requestDeleteContract(RC_EXPORT_FAILED));
     }
+
+    /**
+     * prepares a shutdown
+     * @return  status 200 or 500
+     */
+    @GetMapping("/shutdown")
+    public ResponseEntity<JsonNode> prepareShutdown() {
+        log.info("Shutdown requested");
+        boolean success = session.prepareShutdown();
+        if (success) {
+            log.info("data export successful");
+            return ResponseEntity.ok().build();
+        }
+        else {
+            log.error("data export not successful!");
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /*
+    @PostMapping("/unlock")
+    public ResponseEntity<JsonNode> unlockFile(@RequestBody JsonNode request) {
+        ObjectMapper mapper = new ObjectMapper();
+
+        String filepath = request.get("filepath").textValue();
+        String pasword = request.get("password").textValue();
+        log.info("Unlock requested filepath: " + filepath);
+        log.debug(request.toPrettyString());
+
+        boolean success = false;
+        try {
+            if (request.get("create").booleanValue()) success = session.createFile(filepath, pasword);
+            else success = session.loadFile(filepath, pasword);
+        } catch (RuntimeException exception) {
+            ObjectNode response = mapper.createObjectNode();
+            response.put("reasonCode",)
+            return
+        }
+    }*/
 }

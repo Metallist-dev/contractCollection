@@ -1,16 +1,17 @@
-package de.metallist.backend;
+package de.metallist.backend.utilities;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import de.metallist.backend.Contract;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
 import java.util.Arrays;
 
-import static de.metallist.backend.ReasonCodes.*;
+import static de.metallist.backend.utilities.ReasonCodes.RC_IMPORT_FAILED;
 
 /**
  * implements a bunch of helper methods to fill response jsons
@@ -57,7 +58,6 @@ public class HttpResponse {
         } catch (Exception exception) {
             log.debug(exception.getMessage());
             log.debug(Arrays.toString(exception.getStackTrace()));
-            exception.printStackTrace();
 
             ObjectNode root = mapper.createObjectNode();
             ObjectNode head = mapper.createObjectNode();
@@ -73,7 +73,7 @@ public class HttpResponse {
     }
 
     /**
-     * fills the repsonse body for contract deletion
+     * fills the response body for contract deletion
      *
      * @param reasonCode RC which has to be returned
      * @return Json with RC and message in head and empty body
@@ -93,7 +93,6 @@ public class HttpResponse {
         } catch (Exception exception) {
             log.error(exception.getMessage());
             log.debug(Arrays.toString(exception.getStackTrace()));
-            exception.printStackTrace();
 
             ObjectNode root = mapper.createObjectNode();
             ObjectNode head = mapper.createObjectNode();
@@ -133,7 +132,6 @@ public class HttpResponse {
         } catch (Exception exception) {
             log.error(exception.getMessage());
             log.debug(Arrays.toString(exception.getStackTrace()));
-            exception.printStackTrace();
 
             ObjectNode head = mapper.createObjectNode();
 

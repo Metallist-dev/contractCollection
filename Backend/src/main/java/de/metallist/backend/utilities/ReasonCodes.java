@@ -1,4 +1,4 @@
-package de.metallist.backend;
+package de.metallist.backend.utilities;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

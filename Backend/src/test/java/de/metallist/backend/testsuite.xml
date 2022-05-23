@@ -4,7 +4,21 @@
 <suite name = "BackendTests">
     <test name = "API tests">
         <classes>
-            <class name = "de.metallist.backend.TestContract">
+            <class name = "de.metallist.backend.utilities.SessionUtilTest">
+                <methods>
+                    <include name="test_00_AddContract" />
+                    <include name="test_01_GetSingleContract" />
+                    <include name="test_02_RemoveContractById" />
+                    <include name="test_03_RemoveContract" />
+                    <include name="test_04_UpdateContract" />
+                    <include name="test_05_writeFileTest" />
+                    <include name="test_06_loadFileTest" />
+                    <include name="test_07_GetContracts" />
+                    <include name="test_08_PrepareShutdown" />
+                </methods>
+            </class>
+
+            <class name="de.metallist.backend.MainControllerTest">
                 <methods>
                     <include name="test_00_newContract" />
                     <include name="test_01_deleteContract" />
@@ -13,6 +27,16 @@
                     <include name="test_04_updateContract" />
                     <include name="test_05_importContracts" />
                     <include name="test_06_exportContracts" />
+                    <include name="test_07_shutdown" />
+                </methods>
+            </class>
+
+            <class name="de.metallist.backend.utilities.EncryptionUtilTest">
+                <methods>
+                    <include name="test_00_generateKeyFromPassword" />
+                    <include name="test_01_generateIV" />
+                    <include name="test_02_compareKeys" />
+                    <include name="test_03_encryptDecrypt" />
                 </methods>
             </class>
         </classes>

@@ -5,6 +5,7 @@ plugins {
     id 'org.openapi.generator' version '5.4.0'
     //id 'org.asciidoctor.jvm.convert' version '3.3.2'
     id "jacoco"
+    id 'org.hidetake.swagger.generator' version '2.19.2'
 }
 
 apply plugin: 'org.openapi.generator'
@@ -39,6 +40,21 @@ openApiValidate {
     inputSpec = "$rootDir/src/main/resources/static/contractcollection-api.yaml" as Object
 }
 
+swaggerSources {
+    Backend {
+        inputFile = file('src/main/resources/static/contractcollection-api.yaml')
+        ui {
+            outputDir = file("$buildDir/docs/swaggerUI-Backend")
+            doLast {
+                copy {
+                    from 'docs/swaggerUI.html'
+                    into outputDir
+                }
+            }
+        }
+    }
+}
+
 /*asciidoctor {
     delete("$buildDir/docs")
     dependsOn 'openApiGenerate'
@@ -59,12 +75,12 @@ dependencies {
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter', version: SpringVersion
 
     // Apache License 2.0
-    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: SpringVersion
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-actuator
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: SpringVersion
 
     // Apache License 2.0
-    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-jpa
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: SpringVersion
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: SpringVersion
 
     // Apache License 2.0
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools
@@ -73,7 +89,7 @@ dependencies {
     // Apache License 2.0
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test
     //testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: SpringVersion
-    testImplementation('org.springframework.boot:spring-boot-starter-test:2.6.3')
+    testImplementation('org.springframework.boot:spring-boot-starter-test:' + SpringVersion)
     {
         exclude group: 'junit', module: 'junit'
     }
@@ -87,14 +103,6 @@ dependencies {
     // https://mvnrepository.com/artifact/org.projectlombok/lombok
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
-
-    // LGPL 2.1
-    // https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
-    implementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '3.0.3'
-
-    // Apache License 2.0
-    // https://mvnrepository.com/artifact/org.flywaydb/flyway-core
-    //implementation group: 'org.flywaydb', name: 'flyway-core', version: '8.4.3'
 
     // Apache License 2.0
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
@@ -119,6 +127,11 @@ dependencies {
     // unknown license
     // https://mvnrepository.com/artifact/org.asciidoctor/asciidoctor-gradle-jvm
     //implementation group: 'org.asciidoctor', name: 'asciidoctor-gradle-jvm', version: '3.3.2'
+
+    // Apache License 2.0
+    // https://mvnrepository.com/artifact/org.webjars/swagger-ui
+    swaggerUI 'org.webjars:swagger-ui:4.10.3'
+
 
 
     // Apache License 2.0
@@ -182,13 +195,3 @@ jacocoTestCoverageVerification {
         }
     }
 }
-
-/*flyway {
-    url = 'jdbc:mariadb://localhost:3306/db_vertraege'
-    user = 'vertragssammlungsuser'
-    password = 'ProgramPassword'
-    schemas = ['vertraege']
-    locations = ['classpath:db/migration/','filesystem:db/migration']
-}
-
-flywayMigrate.dependsOn classes*/
