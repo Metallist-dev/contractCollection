@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
 
@@ -82,24 +83,29 @@ public class SessionUtilTest {
     }
 
     @Test
-    public void test_06_loadFileTest() {
+    public void test_06_loadFileTest() throws IOException {
         String filepath = new File("src/test/resources/testExportedFile.txt").getAbsolutePath();
-        String falsepath = new File("src/resources/testExportedFile.txt").getAbsolutePath();
+        String correctContent = Files.readString(Paths.get(filepath));
+
+        String shortContent = correctContent.split(":")[3];
+
         String corruptedFile = new File("src/test/resources/testCorruptedFile.txt").getAbsolutePath();
+        String corruptedContent = Files.readString(Paths.get(corruptedFile));
+
         ArrayList<Contract> contracts = new ArrayList<>();
 
-        // wrong file path
+        // short content
         session.removeAllContracts();
         try {
-            contracts = session.loadFile(falsepath, "123superSecret!");
+            contracts = (ArrayList<Contract>) session.loadFile(shortContent, "123superSecret!");
         } catch (Exception e) {
-            assertTrue(e.getMessage().contains("Failed to load file"));
+            assertTrue(e.getMessage().contains("Syntax error"));
         }
         assertEquals(contracts.size(), 0);
 
         // wrong password
         try {
-            contracts = session.loadFile(filepath, "0123superSecret!");
+            contracts = (ArrayList<Contract>) session.loadFile(correctContent, "0123superSecret!");
         } catch (Exception e) {
             assertEquals(e.getMessage(), "Wrong password.");
         }
@@ -107,7 +113,7 @@ public class SessionUtilTest {
 
         // corrupted file
         try {
-            contracts = session.loadFile(corruptedFile, "123superSecret!");
+            contracts = (ArrayList<Contract>) session.loadFile(corruptedContent, "123superSecret!");
         } catch (Exception e) {
             assertEquals(e.getMessage(), "Couldn't read data.");
         }
@@ -115,7 +121,7 @@ public class SessionUtilTest {
 
         // all fine
         session.removeAllContracts();
-        contracts = session.loadFile(filepath, "123superSecret!");
+        contracts = (ArrayList<Contract>) session.loadFile(correctContent, "123superSecret!");
         assertFalse(contracts.isEmpty());
     }
 

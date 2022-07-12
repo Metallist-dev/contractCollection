@@ -20,6 +20,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 
 import static de.metallist.backend.utilities.ReasonCodes.*;
@@ -197,14 +200,15 @@ public class MainControllerTest extends AbstractTestNGSpringContextTests {
     }
 
     @Test
-    public void test_05_importContracts() {
+    public void test_05_importContracts() throws IOException {
         ArrayList<Contract> mockList = new ArrayList<>();
         mockList.add(testContract);
         mockList.add(testContract2);
         String filepath = new File("src/test/resources/testExportedFile.txt").getAbsolutePath();
+        String filecontent = Files.readString(Path.of(filepath));
 
         ObjectNode requestJson = mapper.createObjectNode();
-        requestJson.put("filepath", filepath);
+        requestJson.put("content", filecontent);
         requestJson.put("password", "123superSecret!");
         requestJson.put("overwrite", true);
 

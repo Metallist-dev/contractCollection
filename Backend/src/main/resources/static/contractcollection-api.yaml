@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: Contract collection
   description: collects contracts with all important information
-  version: 0.2.0
+  version: 0.3.0
   contact:
     name: Metallist-dev
     url: https://github.com/Metallist-dev
@@ -331,20 +331,20 @@ paths:
                     $ref: '#/components/schemas/emptyContract'
   /import:
     put:
-      summary: used to import from a given path
+      summary: used to import given contents
       operationId: importFile
       requestBody:
-        description: contains the path and whether to append or overwrite data
+        description: contains the content and whether to append or overwrite data
         required: true
         content:
           application/json:
             schema:
               type: object
               properties:
-                filepath:
+                content:
                   type: string
-                  description: absolute path of the file for import
-                  example: /home/mhenke/Programmierung/ContractCollection/Backend/src/test/resources/testImport.json
+                  description: content of the file for import
+                  example: h7bggyhGUtU+MqRDpl+Kjwv7t3GzLZPnCGOF7YRiu58=:usPuvG8dkwzJm0040ntDvA==:pJxurlMXMq9Z6v+SZDlx+g==:A3B2rgWVuMenjNyQ8DSL53Ap8jJ18XlC3Mbf4iEjMhA6Wi0/OXQWSQ+HOV2x6ByjskJnPvg5r9tnRmA+rVeb3Ge/pgv8yoG0J0e5cbt9mLN9QqDkRc8We87rQyX++Dcp98XiliwxtU043B5S9QRfSwr7D05oAlzb3y1LbvoQa/O44fa4loIku3gU3df0KFZfmoDsriSdas/e/qBMlhld65YCFcVubYf3B4/F8X5ZFeyoSovXk0+phhSDywz22c8/fjB/4kzp13E762UrlZF137JG9olUBQaTfWjl5Sw3RUVAGY4iHmc9O2qdoYjQw0a/0Sgs6vBJPiXAsfygYTgjv1uCuljMdXhB4Tqp/uJ9h+ftWHLOok3HV+wOW5Y865J/VX4Ti6fEdM0fsiO5Eb/8tNLoEPLd8I7wHTsWcyxgvQnC2SSwoS60g+9kpGA91JWGT3PMJ+LVkbTKvhxsfvJLdvB5/PH+W67z1ri78il3xQuYjTqsizV5JIwJacBbqebBmnlpo15KN5Z4qjSLdaXfj6def1KVEvtNCwaRODaVGg70LvhOCREKnZLSsK2capDtNd2ENUHlJ3+mKKPCxDKBwRQmvNpc0F0suhfpqnUzzQ04pHFkxYHVhsBdoacsHXGIuNVb8h40d9c7PN/6VGGVnQ==
                 password:
                   type: string
                   description: the password to unlock and decrypt the file

@@ -17,18 +17,18 @@ import java.io.File;
 import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 import java.util.prefs.Preferences;
 
 /**
  * holds the most recent status
  *
  * @author Metallist-dev
- * @version 0.2
+ * @version 0.3
  */
 @Slf4j
 @Component
@@ -218,23 +218,22 @@ public class SessionUtil {
 
     /**
      * unlocks and loads the file
-     * @param filepath path of file to open
+     * @param filecontent path of file to open
      * @param password password to unlock the file
      */
-    public ArrayList<Contract> loadFile(String filepath, String password) {
-        log.info("Try to unlock and load file: " + filepath);
+    public List<Contract> loadFile(String filecontent, String password) {
+        log.info("Try to unlock and load file.");
+        log.debug("file contents: " + filecontent);
 
         String[] content;
 
         // split file content
-        try {
-            // syntax: "<pass hash>:<salt>:<IV>:<content>"
-            content = Files.readString(Paths.get(filepath)).split(":");
-        } catch (Exception e) {
-            log.error("Failed to load file from " + filepath);
-            log.debug(e.getMessage());
-            log.debug(Arrays.toString(e.getStackTrace()));
-            throw new RuntimeException("Failed to load file.");
+        // syntax: "<pass hash>:<salt>:<IV>:<filecontent>"
+        content = filecontent.split(":");
+        if (content.length != 4) {
+            log.error("Failed to load file.");
+            log.debug(Arrays.toString(content));
+            throw new RuntimeException("Failed to load file - Syntax error");
         }
 
         // check password
@@ -253,7 +252,7 @@ public class SessionUtil {
         this.iv = new IvParameterSpec(decoder.decode(content[2]));
 
 
-        // decrypt content
+        // decrypt filecontent
         String encryptedData = content[3];
         String decryptedData;
         JsonNode json;
@@ -272,7 +271,7 @@ public class SessionUtil {
             throw new RuntimeException("Couldn't decrypt data.");
         }
         contracts = this.importContracts(json);
-        preferences.put("Filepath", filepath);
+        //preferences.put("Filepath", content);     // DEPRECATED: react-fe forced to send content instead of path
         this.password = password;
         return contracts;
     }
