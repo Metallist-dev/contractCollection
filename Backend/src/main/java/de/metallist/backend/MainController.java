@@ -23,13 +23,18 @@ import static org.springframework.http.HttpStatus.*;
  */
 @Controller
 @Slf4j
-@RequestMapping(path = "/")
+@CrossOrigin(origins = "http://localhost:3000")
 public class MainController {
     private final SessionUtil session;
 
     @Autowired
     public MainController(SessionUtil session) {
         this.session = session;
+    }
+
+    @RequestMapping(path = "/")
+    public ResponseEntity<Void> start() {
+        return new ResponseEntity<>(OK);
     }
 
     /**
@@ -45,14 +50,14 @@ public class MainController {
         try {
             String category = contractJson.get("category").textValue();
             String name = contractJson.get("name").textValue();
-            float expenses = contractJson.get("expenses").floatValue();
-            int cycle = contractJson.get("cycle").intValue();
+            float expenses = contractJson.get("expenses").asLong();
+            int cycle = contractJson.get("cycle").asInt();
             String customerNr = contractJson.get("customerNr").textValue();
             String contractNr = contractJson.get("contractNr").textValue();
             String startDate = contractJson.get("startDate").textValue();
-            int contractPeriod = contractJson.get("contractPeriod").intValue();
-            int periodOfNotice = contractJson.get("periodOfNotice").intValue();
-            String description = contractJson.get("description").asText();
+            int contractPeriod = contractJson.get("contractPeriod").asInt();
+            int periodOfNotice = contractJson.get("periodOfNotice").asInt();
+            String description = contractJson.get("description").asText().replace("\n", "\\n");
             String documentPath = contractJson.get("documentPath").asText();
 
             if (cycle < 1) throw new RuntimeException("The given cycle is below 1 month. Please check the input.");
@@ -133,7 +138,10 @@ public class MainController {
     public ResponseEntity<JsonNode> getSingleContract(@PathVariable int id) {
         log.info("GET-Request for single contract with id " + id);
         Contract contract = session.getSingleContract(id);
-        if (contract != null) return ResponseEntity.ok(HttpResponse.requestSingleContract(RC_GENERAL_SUCCESS, contract));
+        if (contract != null) {
+            log.debug("contract: " + contract);
+            return ResponseEntity.ok(HttpResponse.requestSingleContract(RC_GENERAL_SUCCESS, contract));
+        }
         else return ResponseEntity.status(NOT_FOUND).body(HttpResponse.requestSingleContract(RC_GENERAL_ERROR, new Contract()));
     }
 
@@ -143,7 +151,7 @@ public class MainController {
      * @param request key and value which will be updated
      * @return        updated contract or empty contract
      */
-    @PatchMapping(path = "/change/{id}")
+    @PutMapping(path = "/change/{id}")
     public ResponseEntity<JsonNode> updateContract(@PathVariable int id, @RequestBody JsonNode request) {
         log.info("PATCH-Request for single contract with id " + id);
         log.debug(request.toPrettyString());
@@ -171,7 +179,7 @@ public class MainController {
         log.info("Import contracts from file.");
         log.debug(request.toPrettyString());
 
-        boolean overwrite = request.get("overwrite").booleanValue();
+        boolean overwrite = request.get("overwrite").asBoolean();
         if (overwrite) session.removeAllContracts();
         String content = request.get("content").asText();
         String password = request.get("password").asText();

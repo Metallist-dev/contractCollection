@@ -1,0 +1,74 @@
+#root {
+    min-height: 100vh;
+    margin: 50px;
+    display: flex;
+    flex-direction: column;
+    /*justify-content: center;*/
+}
+
+.custom-flex {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+table {
+    text-align: center;
+    border: grey solid 1px;
+    border-collapse: collapse;
+}
+
+td, th {
+    border: grey solid 1px;
+    padding: 5px;
+}
+
+thead {
+    background: #A0A0A0;
+}
+
+tbody tr:nth-child(odd) {
+    background-color: white;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #eee;
+}
+
+.grid-container-4col {
+    display: grid;
+    grid-template-columns: 10% 10% 20% 20%;
+    grid-row-gap: 10px;
+    text-align: center;
+}
+
+.grid-container-2col {
+    display: grid;
+    grid-template-columns: 20% 40%;
+    grid-row-gap: 10px;
+    /*text-align: center;*/
+}
+
+.grid-head {
+    font-weight: bold;
+    text-align: end;
+    margin-right: 10%;
+}
+
+button {
+    margin: auto 5px;
+    padding: 5px;
+}
+
+.editable {
+    width: 90%;
+}
+
+textarea {
+    min-height: 3em;
+}
+
+.hidden {
+    display: none;
+}

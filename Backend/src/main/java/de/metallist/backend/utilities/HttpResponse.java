@@ -42,17 +42,20 @@ public class HttpResponse {
             String newJsonString = jsonString
                     .replace("#MESSAGE#", reasonCode.getDescription())
                     .replace("#REASON-CODE#", reasonCode.getCodenumber())
+                    .replace("\"id\" : 0", "\"id\": " + contract.getId())
                     .replace("#CATEGORY#", contract.getCategory())
                     .replace("#NAME#", contract.getName())
-                    .replace("\"expenses\": 0.00", "\"expenses\": " + contract.getExpenses())
-                    .replace("\"cycle\": 0", "\"cycle\": " + contract.getCycle())
+                    .replace("\"expenses\" : 0.0", "\"expenses\": " + contract.getExpenses())
+                    .replace("\"cycle\" : 0", "\"cycle\": " + contract.getCycle())
                     .replace("#CUSTOMER#", contract.getCustomerNr())
                     .replace("#CONTRACT#", contract.getContractNr())
                     .replace("#STARTDATE#", contract.getStartDate())
-                    .replace("\"contractPeriod\": 0", "\"cycle\": " + contract.getContractPeriod())
-                    .replace("\"periodOfNotice\": 0", "\"periodOfNotice\": " + contract.getPeriodOfNotice())
+                    .replace("\"contractPeriod\" : 0", "\"cycle\": " + contract.getContractPeriod())
+                    .replace("\"periodOfNotice\" : 0", "\"periodOfNotice\": " + contract.getPeriodOfNotice())
                     .replace("#DESCRIPTION#", contract.getDescription())
                     .replace("#DOCUMENTS PATH#", contract.getDocumentPath());
+
+            log.debug("new Json string = " + newJsonString);
 
             return mapper.readTree(newJsonString);
         } catch (Exception exception) {

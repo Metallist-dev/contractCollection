@@ -10,6 +10,12 @@ info:
 servers:
   - url: 'http://localhost:8080'
 paths:
+  /:
+    get:
+      summary: starting point
+      responses:
+        '200':
+          description: successfully started
   /add:
     post:
       summary: creates a new contract
@@ -255,7 +261,7 @@ paths:
                   body:
                     $ref: '#/components/schemas/emptyContract'
   /change/{id}:
-    patch:
+    put:
       summary: updates a contract
       operationId: updateContract
       parameters:
@@ -617,7 +623,7 @@ components:
         cycle:
           type: integer
           minimum: 1
-          description: number of payments per year
+          description: number of months between two payments
           example: 12
         customerNr:
           type: string
@@ -666,7 +672,7 @@ components:
         cycle:
           type: integer
           minimum: 1
-          description: number of payments per year
+          description: number of months between two payments
           example: 0
         customerNr:
           type: string

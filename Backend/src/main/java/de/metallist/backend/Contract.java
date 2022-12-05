@@ -33,7 +33,7 @@ public class Contract {
     @Getter @Setter
     private float expenses;
 
-    /** number of payments per year (1, 2, 4, 12) */
+    /** number of months between two payments (1, 3, 4, 6, 12) */
     @Getter @Setter
     private int cycle;
 
@@ -106,6 +106,24 @@ public class Contract {
             log.debug(Arrays.toString(e.getStackTrace()));
         }
         return node;
+    }
+
+    @Override
+    public String toString() {
+        return "Contract{" +
+                "id=" + id +
+                ", category='" + category + '\'' +
+                ", name='" + name + '\'' +
+                ", expenses=" + expenses +
+                ", cycle=" + cycle +
+                ", customerNr='" + customerNr + '\'' +
+                ", contractNr='" + contractNr + '\'' +
+                ", startDate='" + startDate + '\'' +
+                ", contractPeriod=" + contractPeriod +
+                ", periodOfNotice=" + periodOfNotice +
+                ", description='" + description + '\'' +
+                ", documentPath='" + documentPath + '\'' +
+                '}';
     }
 }
 

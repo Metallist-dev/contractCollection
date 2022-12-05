@@ -115,6 +115,7 @@ public class SessionUtil {
      * @return      object of the contract or null
      */
     public Contract updateContract(int id, String key, String value) {
+        log.debug("request-data\n  id:    "+ id + "\n  key:   " + key + "\n  value: " + value);
         Contract newContract = this.getSingleContract(id);
 
         switch (key) {
@@ -162,7 +163,10 @@ public class SessionUtil {
                 newContract.setDocumentPath(value);
                 break;
             }
-            default: return null;
+            default: {
+                log.error("Something went wrong.");
+                return null;
+            }
         }
         return newContract;
     }

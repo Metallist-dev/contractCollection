@@ -20,7 +20,7 @@ def jacocoVersion = '0.8.7'
 // VARIABLES
 
 group = 'de.metallist'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1-alpha'
 sourceCompatibility = '11'
 
 repositories {
@@ -28,6 +28,10 @@ repositories {
     //maven {
     //    url "https://plugins.gradle.org/m2/"
     //}
+}
+
+bootRun {
+    systemProperties["spring.profiles.active"] = 'dev';
 }
 
 openApiGenerate {
