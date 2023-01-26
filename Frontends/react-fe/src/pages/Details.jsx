@@ -1,6 +1,6 @@
 import React from "react";
 import axios from "axios";
-import objIsEqual from '../util/utilities';
+import { objIsEqual, deleteContract } from '../util/utilities';
 
 class Details extends React.Component {
     constructor(props) {
@@ -22,15 +22,14 @@ class Details extends React.Component {
 
         this.backToOverview = this.backToOverview.bind(this);
         this.toggleEdit = this.toggleEdit.bind(this);
-        this.deleteContract = this.deleteContract.bind(this);
-        this.setExpenses = this.setExpenses.bind(this);
-        this.setCycle = this.setCycle.bind(this);
-        this.setDescription = this.setDescription.bind(this);
-        this.setDocumentPath = this.setDocumentPath.bind(this);
+        //this.deleteContract = deleteContract.bind(this);
+        this.handleInputChange = this.handleInputChange.bind(this);
 
         this.inputName = React.createRef();
         this.inputCategory = React.createRef();
         this.inputExpenses = React.createRef();
+        this.inputContractPeriod = React.createRef();
+        this.inputPeriodOfNotice = React.createRef();
         this.inputCycle = React.createRef();
         this.inputDescription = React.createRef();
         this.inputDocumentPath = React.createRef();
@@ -47,7 +46,7 @@ class Details extends React.Component {
         console.log(contractID);
         axios.get("http://localhost:8080/get/" + contractID)
             .then(response => {
-                console.log(response.data);
+                console.log("full contract", response.data);
                 let contract = response.data.body;
                 this.setState({
                     editActive: false,
@@ -108,6 +107,12 @@ class Details extends React.Component {
                         case "inputCycle":
                             this.setState({cycle: inputValue});
                             break;
+                        case "inputContractPeriod":
+                            this.setState({contractPeriod: inputValue});
+                            break;
+                        case "inputPeriodofNotice":
+                            this.setState({periodOfNotice: inputValue});
+                            break;
                         case "inputDescription":
                             this.setState({description: inputValue});
                             break;
@@ -115,7 +120,7 @@ class Details extends React.Component {
                             this.setState({documentPath: inputValue});
                             break;
                         default:
-                            alert("Something went wrong: field name unknown.")
+                            alert("Something went wrong: field name " + field.id + " unknown.")
                     }
                 }
             }
@@ -155,11 +160,13 @@ class Details extends React.Component {
             });
     }
 
-    deleteContract() {
+    /*deleteContract() {
         let body = {
             id: this.state.id,
             name: this.state.name
         };
+        let confirmation = window.confirm("Are you sure to delete this contract?");
+        if (!confirmation) return;
         console.log("deleting contract ", body);
         axios.post("http://localhost:8080/delete", body)
             .then(response => {
@@ -174,26 +181,23 @@ class Details extends React.Component {
                 console.error("Some error occurred: ", error);
                 alert("Something went wrong!");
             });
-    }
+    }*/
 
-    setExpenses(event) {
-        this.setState({expenses: event.target.value});
-        console.log("changed number");
-    }
-
-    setCycle(event) {
-        this.setState({cycle: event.target.value});
-        console.log("changed number");
-    }
-
-    setDescription(event) {
-        this.setState({description: event.target.value});
-        console.log("changed description");
-    }
-
-    setDocumentPath(event) {
-        this.setState({documentPath: event.target.value});
-        console.log("changed document path");
+    handleInputChange(event) {
+        event.preventDefault();
+        console.log("input change", event.target.id);
+        console.log("state", this.state);
+        switch (event.target.id) {
+            case "inputExpenses": this.setState({expenses: event.target.value}); break;
+            case "inputCycle": this.setState({cycle: event.target.value}); break;
+            case "inputContractPeriod": this.setState({contractPeriod: event.target.value}); break;
+            case "inputPeriodOfNotice": this.setState({periodOfNotice: event.target.value}); break;
+            case "inputDescription": this.setState({description: event.target.value}); break;
+            case "inputDocumentPath": this.setState({documentPath: event.target.value}); break;
+            default:
+                console.error("undefined behaviour!");
+                alert("undefined behaviour");
+        }
     }
 
     render() {
@@ -216,7 +220,7 @@ class Details extends React.Component {
                         <button type="button" id="backButton" onClick={this.backToOverview}>Overview</button>
                         <button type="button" id="discardButton" className="hidden" onClick={this.toggleEdit}>Discard</button>
                         <button type="button" id="editButton" onClick={this.toggleEdit}>Edit</button>
-                        <button type="button" id="deleteButton" onClick={this.deleteContract}>Delete</button>
+                        <button type="button" id="deleteButton" onClick={() => { deleteContract(contract.id, contract.name); }}>Delete</button>
                     </div>
                 </div>
                 <h2>Basic data</h2>
@@ -238,7 +242,7 @@ class Details extends React.Component {
                     <div className="grid-item">
                         <div className="editable">{contract.expenses} &euro;</div>
                         <input type="number" id="inputExpenses" className="editable hidden" ref={this.inputExpenses}
-                               onChange={this.setExpenses} value={contract.expenses}/>
+                               onChange={this.handleInputChange} value={contract.expenses}/>
                     </div>
                     <div className="grid-item">{contract.expenses * (12 / contract.cycle)} &euro;</div>
                 </div>
@@ -252,7 +256,39 @@ class Details extends React.Component {
                         <td className="editable">{contract.cycle}</td>
                         <td className="editable hidden">
                             <input type="number" id="inputCycle" className="editable hidden" ref={this.inputCycle}
-                                onChange={this.setCycle} value={contract.cycle}/>
+                                   onChange={this.handleInputChange} value={contract.cycle}/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Customer number</th>
+                        <td className="">{contract.customerNr}</td>
+                    </tr>
+                    <tr>
+                        <th>Contract number</th>
+                        <td className="">{contract.contractNr}</td>
+                    </tr>
+                    <tr>
+                        <th>Start date</th>
+                        <td className="">
+                            {String(new Date(contract.startDate).getDate()).padStart(2, '0')}.
+                            {String(new Date(contract.startDate).getMonth() + 1).padStart(2, '0')}.
+                            {new Date(contract.startDate).getFullYear()}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Contract period</th>
+                        <td className="editable">{contract.contractPeriod}</td>
+                        <td className="editable hidden">
+                            <input type="number" id="inputContractPeriod" className="editable hidden" ref={this.inputContractPeriod}
+                                   onChange={this.handleInputChange} value={contract.contractPeriod}/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Period of notice</th>
+                        <td className="editable">{contract.periodOfNotice}</td>
+                        <td className="editable hidden">
+                            <input type="number" id="inputPeriodOfNotice" className="editable hidden" ref={this.inputPeriodOfNotice}
+                                   onChange={this.handleInputChange} value={contract.periodOfNotice}/>
                         </td>
                     </tr>
                     <tr>
@@ -260,7 +296,7 @@ class Details extends React.Component {
                         <td className="editable">{contract.description}</td>
                         <td className="editable hidden">
                             <input type="text" id="inputDescription" className="editable hidden" ref={this.inputDescription}
-                                   onChange={this.setDescription} value={contract.description}/>
+                                   onChange={this.handleInputChange} value={contract.description}/>
                         </td>
                     </tr>
                     <tr>
@@ -268,7 +304,7 @@ class Details extends React.Component {
                         <td className="editable">{contract.documentPath}</td>
                         <td className="editable hidden">
                             <input type="text" id="inputDocumentPath" className="editable hidden" ref={this.inputDocumentPath}
-                                   onChange={this.setDocumentPath} value={contract.documentPath}/>
+                                   onChange={this.handleInputChange} value={contract.documentPath}/>
                         </td>
                     </tr>
 

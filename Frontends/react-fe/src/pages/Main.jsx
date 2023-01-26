@@ -1,5 +1,6 @@
 import React from "react";
 import axios from "axios";
+import { deleteContract } from "../util/utilities";
 
 class Main extends React.Component{
     constructor(props) {
@@ -9,6 +10,7 @@ class Main extends React.Component{
         };
 
         this.createNew = this.createNew.bind(this);
+        this.closeApp = this.closeApp.bind(this);
     }
 
     componentDidMount() {
@@ -51,13 +53,19 @@ class Main extends React.Component{
                 row.append(tdTag);
             }
             let actionTdTag = document.createElement("td");
-            let button = document.createElement("button");
-            button.type = "button";
-            button.innerText = "Details";
-            button.onclick = function () {
+            let detailsButton = document.createElement("button");
+            detailsButton.type = "button";
+            detailsButton.innerText = "Details";
+            detailsButton.onclick = function () {
                 window.location.href = "/contract/" + element.id;
             };
-            actionTdTag.append(button);
+            let deleteButton = document.createElement("button");
+            deleteButton.type = "button";
+            deleteButton.innerText = "Delete";
+            deleteButton.onclick = () => { deleteContract(data[0], data[1]); };
+
+            actionTdTag.append(detailsButton);
+            actionTdTag.append(deleteButton);
             row.append(actionTdTag);
 
             overviewTable.append(row);
@@ -68,12 +76,37 @@ class Main extends React.Component{
         window.location.href = "/new";
     }
 
+    closeApp() {
+        axios.get("http://localhost:8080/prepareShutdown")
+            .then(async (result) => {
+                const root = await navigator.storage.getDirectory();
+                const draftHandle = await root.getFileHandle('test.txt', {create: true})
+            })
+
+        /*axios.get("http://localhost:8080/shutdown")
+            .then(result => {
+                console.log(result);
+                axios.post("http://localhost:8080/actuator/shutdown")
+                    .then(finalResult => {
+                        if (finalResult.status === 200)
+                            window.close();
+                    })
+            })
+            .catch(e => {
+                console.error(e);
+                alert("File couldn't be saved");
+            })*/
+    }
+
     render() {
         return (
             <>
                 <div className="custom-flex">
                     <h1>Overview</h1>
-                    <button type="button" onClick={this.createNew}>Create new</button>
+                    <div>
+                        <button type="button" onClick={this.createNew}>Create new</button>
+                        <button type="button" onClick={this.closeApp}>Shutdown</button>
+                    </div>
                 </div>
                 <table id="overviewTable">
                     <thead>

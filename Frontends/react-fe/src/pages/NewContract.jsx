@@ -151,13 +151,13 @@ class NewContract extends React.Component {
                                defaultValue={contract.startDate}/>
                     </div>
 
-                    <div className="grid-item grid-head">Contract period</div>
+                    <div className="grid-item grid-head">Contract period (months)</div>
                     <div className="grid-item">
                         <input type="number" id="inputContractPeriod" className="editable" ref={this.inputContractPeriod}
                                onChange={this.handleNumberChange} defaultValue={contract.contractPeriod}/>
                     </div>
 
-                    <div className="grid-item grid-head">Period of Notice</div>
+                    <div className="grid-item grid-head">Period of Notice (months)</div>
                     <div className="grid-item">
                         <input type="number" id="inputPeriodOfNotice" className="editable" ref={this.inputPeriodOfNotice}
                                onChange={this.handleNumberChange} defaultValue={contract.periodOfNotice}/>
