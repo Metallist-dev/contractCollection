@@ -24,6 +24,16 @@ td, th {
     padding: 5px;
 }
 
+@media screen and (min-width: 800px) {
+    table { max-width: 60%; }
+    th { width: 30%; }
+}
+
+@media screen and (max-width: 800px) {
+    table { max-width: 100%; }
+    th { width: 40%; }
+}
+
 thead {
     background: #A0A0A0;
 }
@@ -38,21 +48,29 @@ tbody tr:nth-child(even) {
 
 .grid-container-4col {
     display: grid;
-    grid-template-columns: 10% 10% 20% 20%;
     grid-row-gap: 10px;
     text-align: center;
 }
 
 .grid-container-2col {
     display: grid;
-    grid-template-columns: 20% 40%;
     grid-row-gap: 10px;
     /*text-align: center;*/
 }
 
+@media screen and (min-width: 800px) {
+    .grid-container-4col { grid-template-columns: 10% 10% 20% 20%; }
+    .grid-container-2col { grid-template-columns: 20% 40%;}
+}
+
+@media screen and (max-width: 800px) {
+    .grid-container-4col { grid-template-columns: 15% 15% 30% 30%; }
+    .grid-container-2col { grid-template-columns: 33% 66%;}
+}
+
 .grid-head {
     font-weight: bold;
-    text-align: end;
+    text-align: center;
     margin-right: 10%;
 }
 
