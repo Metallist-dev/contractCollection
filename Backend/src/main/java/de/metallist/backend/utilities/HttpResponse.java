@@ -49,7 +49,7 @@ public class HttpResponse {
                     .replace("#CUSTOMER#", contract.getCustomerNr())
                     .replace("#CONTRACT#", contract.getContractNr())
                     .replace("#STARTDATE#", contract.getStartDate())
-                    .replace("\"contractPeriod\": 0", "\"cycle\": " + contract.getContractPeriod())
+                    .replace("\"contractPeriod\": 0", "\"contractPeriod\": " + contract.getContractPeriod())
                     .replace("\"periodOfNotice\": 0", "\"periodOfNotice\": " + contract.getPeriodOfNotice())
                     .replace("#DESCRIPTION#", contract.getDescription())
                     .replace("#DOCUMENTS PATH#", contract.getDocumentPath());
@@ -111,6 +111,7 @@ public class HttpResponse {
     /**
      * fills the response for returning all contracts
      *
+     * @param reasonCode RC which has to be returned
      * @param contracts list of contracts
      * @return RC and message in head and list of contracts in body
      */
@@ -144,5 +145,39 @@ public class HttpResponse {
             root.set("body", body);
         }
         return root;
+    }
+
+    /**
+     * fills the response for a requested shutdown
+     *
+     * @param reasonCode RC which has to be returned
+     * @return Json with RC and message in head
+     */
+    public static JsonNode requestShutdown(ReasonCodes reasonCode) {
+        try {
+            InputStream stream = JsonNode.class.getClassLoader().getResourceAsStream(BASEPATH + "shutdown.json");
+            JsonNode node = mapper.readTree(stream);
+
+            String jsonString = mapper.writeValueAsString(node);
+
+            String newJsonString = jsonString
+                    .replace("#MESSAGE#", reasonCode.getDescription())
+                    .replace("#REASON-CODE#", reasonCode.getCodenumber());
+
+            return mapper.readTree(newJsonString);
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            log.debug(Arrays.toString(exception.getStackTrace()));
+
+            ObjectNode root = mapper.createObjectNode();
+            ObjectNode head = mapper.createObjectNode();
+
+            head.put("message", reasonCode.getDescription());
+            head.put("reasonCode", reasonCode.getCodenumber());
+
+            root.set("head", head);
+
+            return root;
+        }
     }
 }

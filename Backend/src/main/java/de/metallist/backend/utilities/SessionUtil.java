@@ -347,7 +347,7 @@ public class SessionUtil {
      * @return true if export successful
      */
     public boolean prepareShutdown() {
-        String filepath = preferences.get("Filepath", "");
+        String filepath = preferences.get("Filepath", System.getProperty("user.home"));
         return this.writeFile(filepath, this.password);
     }
 }

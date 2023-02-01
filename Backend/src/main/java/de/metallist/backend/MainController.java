@@ -210,11 +210,11 @@ public class MainController {
         boolean success = session.prepareShutdown();
         if (success) {
             log.info("data export successful");
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(HttpResponse.requestShutdown(RC_SHUTDOWN_SUCCESS));
         }
         else {
             log.error("data export not successful!");
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body(HttpResponse.requestShutdown(RC_SHUTDOWN_FAILED));
         }
     }
 

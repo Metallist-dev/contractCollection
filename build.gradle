@@ -6,7 +6,7 @@ plugins {
 
 ext {
     SpringVersion = '2.6.3'
-    TestNGVersion = '7.5'
+    TestNGVersion = '7.7.0'
 }
 
 group = 'de.metallist'

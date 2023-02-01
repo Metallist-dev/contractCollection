@@ -487,8 +487,46 @@ paths:
       responses:
         '200':
           description: data successfully exported to file
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  head:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        description: response message with further information
+                        example: shutdown successfully prepared
+                      reasonCode:
+                        type: string
+                        enum:
+                          - "RC_SHT_00"
+                          - "RC_GEN_00"
+                        description: provides basic information on the action result
+                        example: RC_SHT_00
         '500':
           description: export failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  head:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        description: response message with further information
+                        example: shutdown preparation failed
+                      reasonCode:
+                        type: string
+                        enum:
+                          - "RC_SHT_10"
+                          - "RC_GEN_99"
+                        description: provides basic information on the action result
+                        example: RC_SHT_10
   /actuator/shutdown:
     post:
       summary: triggers a graceful shutdown
