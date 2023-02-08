@@ -101,7 +101,7 @@ public class SessionUtilTest {
         try {
             contracts = session.loadFile(filepath, "0123superSecret!");
         } catch (Exception e) {
-            assertEquals(e.getMessage(), "Wrong password.");
+            assertEquals(e.getMessage(), "Couldn't decrypt data.");
         }
         assertEquals(contracts.size(), 0);
 
@@ -109,7 +109,7 @@ public class SessionUtilTest {
         try {
             contracts = session.loadFile(corruptedFile, "123superSecret!");
         } catch (Exception e) {
-            assertEquals(e.getMessage(), "Couldn't read data.");
+            assertEquals(e.getMessage(), "Failed to load file.");
         }
         assertEquals(contracts.size(), 0);
 

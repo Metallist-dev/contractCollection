@@ -25,6 +25,18 @@ public class HttpResponse {
 
     private static final String BASEPATH = "static/templates/responses/";
 
+    private static final String PLACEHOLDER_MESSAGE = "#MESSAGE#";
+    private static final String FIELDNAME_MESSAGE = "message";
+    private static final String PLACEHOLDER_RC = "#REASON-CODE#";
+    private static final String FIELDNAME_RC = "reasonCode";
+
+    /**
+     * private constructor
+     */
+    private HttpResponse() {
+        throw new IllegalStateException("This is a utility class");
+    }
+
     /**
      * fill response body for requesting a single contract (add, get, update)
      *
@@ -40,8 +52,8 @@ public class HttpResponse {
             String jsonString = mapper.writeValueAsString(node);
 
             String newJsonString = jsonString
-                    .replace("#MESSAGE#", reasonCode.getDescription())
-                    .replace("#REASON-CODE#", reasonCode.getCodenumber())
+                    .replace(PLACEHOLDER_MESSAGE, reasonCode.getDescription())
+                    .replace(PLACEHOLDER_RC, reasonCode.getCodenumber())
                     .replace("#CATEGORY#", contract.getCategory())
                     .replace("#NAME#", contract.getName())
                     .replace("\"expenses\": 0.00", "\"expenses\": " + contract.getExpenses())
@@ -62,8 +74,8 @@ public class HttpResponse {
             ObjectNode root = mapper.createObjectNode();
             ObjectNode head = mapper.createObjectNode();
 
-            head.put("message", reasonCode.getDescription());
-            head.put("reasonCode", reasonCode.getCodenumber());
+            head.put(FIELDNAME_MESSAGE, reasonCode.getDescription());
+            head.put(FIELDNAME_RC, reasonCode.getCodenumber());
 
             root.set("head", head);
             root.set("body", contract.toJson());
@@ -86,8 +98,8 @@ public class HttpResponse {
             String jsonString = mapper.writeValueAsString(node);
 
             String newJsonString = jsonString
-                    .replace("#MESSAGE#", reasonCode.getDescription())
-                    .replace("#REASON-CODE#", reasonCode.getCodenumber());
+                    .replace(PLACEHOLDER_MESSAGE, reasonCode.getDescription())
+                    .replace(PLACEHOLDER_RC, reasonCode.getCodenumber());
 
             return mapper.readTree(newJsonString);
         } catch (Exception exception) {
@@ -98,8 +110,8 @@ public class HttpResponse {
             ObjectNode head = mapper.createObjectNode();
             ObjectNode body = mapper.createObjectNode();
 
-            head.put("message", reasonCode.getDescription());
-            head.put("reasonCode", reasonCode.getCodenumber());
+            head.put(FIELDNAME_MESSAGE, reasonCode.getDescription());
+            head.put(FIELDNAME_RC, reasonCode.getCodenumber());
 
             root.set("head", head);
             root.set("body", body);
@@ -120,14 +132,14 @@ public class HttpResponse {
         ArrayNode body = mapper.createArrayNode();
 
         try {
-            if (reasonCode == RC_IMPORT_FAILED) throw new RuntimeException(RC_IMPORT_FAILED.getDescription());
+            if (reasonCode == RC_IMPORT_FAILED) throw new IllegalAccessException(RC_IMPORT_FAILED.getDescription());
             InputStream stream = JsonNode.class.getClassLoader().getResourceAsStream(BASEPATH + "allContracts.json");
             JsonNode node = mapper.readTree(stream);
             String jsonString = mapper.writeValueAsString(node);
 
             String newJsonString = jsonString
-                    .replace("#MESSAGE#", reasonCode.getDescription())
-                    .replace("#REASON-CODE#", reasonCode.getCodenumber());
+                    .replace(PLACEHOLDER_MESSAGE, reasonCode.getDescription())
+                    .replace(PLACEHOLDER_RC, reasonCode.getCodenumber());
 
             root.set("head", mapper.readTree(newJsonString).get("head"));
         } catch (Exception exception) {
@@ -136,8 +148,8 @@ public class HttpResponse {
 
             ObjectNode head = mapper.createObjectNode();
 
-            head.put("message", reasonCode.getDescription());
-            head.put("reasonCode", reasonCode.getCodenumber());
+            head.put(FIELDNAME_MESSAGE, reasonCode.getDescription());
+            head.put(FIELDNAME_RC, reasonCode.getCodenumber());
 
             root.set("head", head);
         } finally {
@@ -161,8 +173,8 @@ public class HttpResponse {
             String jsonString = mapper.writeValueAsString(node);
 
             String newJsonString = jsonString
-                    .replace("#MESSAGE#", reasonCode.getDescription())
-                    .replace("#REASON-CODE#", reasonCode.getCodenumber());
+                    .replace(PLACEHOLDER_MESSAGE, reasonCode.getDescription())
+                    .replace(PLACEHOLDER_RC, reasonCode.getCodenumber());
 
             return mapper.readTree(newJsonString);
         } catch (Exception exception) {
@@ -172,8 +184,8 @@ public class HttpResponse {
             ObjectNode root = mapper.createObjectNode();
             ObjectNode head = mapper.createObjectNode();
 
-            head.put("message", reasonCode.getDescription());
-            head.put("reasonCode", reasonCode.getCodenumber());
+            head.put(FIELDNAME_MESSAGE, reasonCode.getDescription());
+            head.put(FIELDNAME_RC, reasonCode.getCodenumber());
 
             root.set("head", head);
 

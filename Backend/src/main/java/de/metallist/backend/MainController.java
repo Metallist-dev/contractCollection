@@ -55,7 +55,7 @@ public class MainController {
             String description = contractJson.get("description").asText();
             String documentPath = contractJson.get("documentPath").asText();
 
-            if (cycle < 1) throw new RuntimeException("The given cycle is below 1 month. Please check the input.");
+            if (cycle < 1) throw new IllegalArgumentException("The given cycle is below 1 month. Please check the input.");
 
             int maxID = 1;
             for (Contract v : session.getContracts()) {
@@ -67,7 +67,7 @@ public class MainController {
                     periodOfNotice, description, documentPath
             );
 
-            if (!session.addContract(contract)) throw new RuntimeException("Failed to add contract.");
+            if (!session.addContract(contract)) throw new IllegalStateException("Failed to add contract.");
 
             return ResponseEntity.ok(HttpResponse.requestSingleContract(RC_CREATE_SUCCESS, contract));
         } catch (Exception e) {
@@ -101,7 +101,8 @@ public class MainController {
             } else if (session.removeContract(contract)) {
                 log.info("Successfully deleted by object.");
                 return ResponseEntity.status(OK).body(HttpResponse.requestDeleteContract(RC_DELETE_SUCCESS));
-            } else throw new RuntimeException("Something went wrong during deletion of the contract with ID \" + id + \".");
+            } else
+                throw new IllegalStateException("Something went wrong during deletion of the contract with ID \" + id + \".");
 
         } catch (NullPointerException npe) {
             String message = RC_DELETE_MISSING + ": the contract with ID " + id + " and name " +  name + " is unavailable.";
@@ -178,8 +179,9 @@ public class MainController {
 
         ArrayList<Contract> result = session.loadFile(filepath, password);
 
-        if (result != null) return ResponseEntity.ok(HttpResponse.requestGetAllContracts(RC_IMPORT_SUCCESS, result));
-        else return ResponseEntity.badRequest().body(HttpResponse.requestGetAllContracts(RC_IMPORT_FAILED, session.getContracts()));
+        if (result == null || result.isEmpty())
+            return ResponseEntity.badRequest().body(HttpResponse.requestGetAllContracts(RC_IMPORT_FAILED, session.getContracts()));
+        else return ResponseEntity.ok(HttpResponse.requestGetAllContracts(RC_IMPORT_SUCCESS, result));
     }
 
     /**
@@ -217,25 +219,4 @@ public class MainController {
             return ResponseEntity.internalServerError().body(HttpResponse.requestShutdown(RC_SHUTDOWN_FAILED));
         }
     }
-
-    /*
-    @PostMapping("/unlock")
-    public ResponseEntity<JsonNode> unlockFile(@RequestBody JsonNode request) {
-        ObjectMapper mapper = new ObjectMapper();
-
-        String filepath = request.get("filepath").textValue();
-        String pasword = request.get("password").textValue();
-        log.info("Unlock requested filepath: " + filepath);
-        log.debug(request.toPrettyString());
-
-        boolean success = false;
-        try {
-            if (request.get("create").booleanValue()) success = session.createFile(filepath, pasword);
-            else success = session.loadFile(filepath, pasword);
-        } catch (RuntimeException exception) {
-            ObjectNode response = mapper.createObjectNode();
-            response.put("reasonCode",)
-            return
-        }
-    }*/
 }

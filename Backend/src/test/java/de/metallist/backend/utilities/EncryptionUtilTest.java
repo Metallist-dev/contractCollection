@@ -1,34 +1,25 @@
 package de.metallist.backend.utilities;
 
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.GCMParameterSpec;
 
 import java.security.SecureRandom;
+import java.util.Arrays;
 
 import static org.testng.Assert.*;
 
 public class EncryptionUtilTest {
-    private SecretKey key;
 
-    private byte[] salt;
+    private final String password = "supersecret";
 
-    private IvParameterSpec iv;
-
-    @BeforeClass
-    private void setup() {
-        this.key = null;
-        this.iv = null;
-    }
+    private GCMParameterSpec gcmParameterSpec;
 
     @Test
     public void test_00_generateKeyFromPassword() {
-        String password = "supersecret";
         byte[] salt = new byte[16];
         new SecureRandom().nextBytes(salt);
-        this.salt = salt;
         SecretKey returnedKey = null;
 
         try {
@@ -37,54 +28,51 @@ public class EncryptionUtilTest {
             fail();
         }
         assertNotEquals(returnedKey.getEncoded().length, 0);
-
-        this.key = returnedKey;
     }
 
     @Test
-    public void test_01_generateIV() {
-        iv = EncryptionUtil.generateIV();
-        assertNotNull(iv);
+    public void test_01_generateGCMSpecs() {
+        gcmParameterSpec = EncryptionUtil.generateGCMSpecs();
+        assertNotNull(gcmParameterSpec);
+        assertEquals(gcmParameterSpec.getTLen(), 128);
+        assertNotEquals(gcmParameterSpec.getIV().length, 0);
     }
 
     @Test
-    public void test_02_compareKeys() {
-        String correctPassword = "supersecret";
-        String wrongPassword = "SuperSecret";
+    public void test_02_regenerateGCMSpecs() {
+        GCMParameterSpec newGcmParameterSpec;
 
-        SecretKey secretKey = null;
+        newGcmParameterSpec = EncryptionUtil.regenerateGCMSpecs(gcmParameterSpec.getIV());
+        assertNotNull(newGcmParameterSpec);
+        assertEquals(newGcmParameterSpec.getTLen(), gcmParameterSpec.getTLen());
+        assertEquals(newGcmParameterSpec.getIV(), gcmParameterSpec.getIV());
 
-        try {
-            secretKey = EncryptionUtil.generateKeyFromPassword(correctPassword, salt);
-        } catch (Exception e) {
-            fail();
-        }
-
-        assertTrue(EncryptionUtil.compareKeys(correctPassword, salt, secretKey.getEncoded()));
-        assertFalse(EncryptionUtil.compareKeys(wrongPassword, salt, secretKey.getEncoded()));
+        byte[] falseIV = new byte[16];
+        new SecureRandom().nextBytes(falseIV);
+        newGcmParameterSpec = EncryptionUtil.regenerateGCMSpecs(falseIV);
+        assertNotNull(newGcmParameterSpec);
+        assertNotEquals(newGcmParameterSpec.getIV(), gcmParameterSpec.getIV());
     }
 
     @Test
     public void test_03_encryptDecrypt() {
-        if (key == null || iv == null) {
-            this.test_00_generateKeyFromPassword();
-            this.test_01_generateIV();
-        }
-
         String plaintext = "This is some test string.";
+        byte[] encryptionOutput = "".getBytes();
         String encryptedText = "";
         String decryptedText = "";
 
         try {
-            encryptedText = EncryptionUtil.encrypt(plaintext, key, iv);
+            encryptionOutput = EncryptionUtil.encrypt(plaintext, password);
+            encryptedText = Arrays.toString(encryptionOutput);
         } catch (Exception e) {
             fail(e.getMessage());
         }
         assertNotEquals(encryptedText, "");
 
         try {
-            decryptedText = EncryptionUtil.decrypt(encryptedText, key, iv);
+            decryptedText = EncryptionUtil.decrypt(encryptionOutput, password);
         } catch (Exception e) {
+            e.printStackTrace();
             fail(e.getMessage());
         }
         assertNotEquals(decryptedText, "");

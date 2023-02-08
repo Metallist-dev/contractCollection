@@ -11,17 +11,13 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
 import java.io.File;
 import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.prefs.Preferences;
 
 /**
@@ -36,18 +32,11 @@ public class SessionUtil {
     @Getter
     private ArrayList<Contract> contracts;
 
-    private SecretKey key;
-
-    private IvParameterSpec iv;
-
     private final Preferences preferences;
 
     private String password;
 
     private final ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
-
-    private final Base64.Encoder encoder = Base64.getEncoder();
-    private final Base64.Decoder decoder = Base64.getDecoder();
 
     public SessionUtil() {
         this.contracts = new ArrayList<>();
@@ -173,7 +162,7 @@ public class SessionUtil {
      * @return              all imported contracts
      */
     private ArrayList<Contract> importContracts(JsonNode importJson) {
-        if (importJson.getNodeType() != JsonNodeType.ARRAY) return null;
+        if (importJson.getNodeType() != JsonNodeType.ARRAY) return new ArrayList<>();
 
         for (JsonNode contractJson : importJson) {
             Contract contract = new Contract();
@@ -224,12 +213,19 @@ public class SessionUtil {
     public ArrayList<Contract> loadFile(String filepath, String password) {
         log.info("Try to unlock and load file: " + filepath);
 
-        String[] content;
+        byte[] cipherdata;
 
-        // split file content
+        // read file content
         try {
-            // syntax: "<pass hash>:<salt>:<IV>:<content>"
-            content = Files.readString(Paths.get(filepath)).split(":");
+            String content = Files.readString(Paths.get(filepath));
+
+            String[] bytevals = content.substring(1, content.length() - 1).split(",");
+            byte[] data = new byte[bytevals.length];
+            for (int i = 0; i < data.length; i++) {
+                data[i] = Byte.parseByte(bytevals[i].trim());
+            }
+            cipherdata = data;
+            log.debug("content load: " + Arrays.toString(cipherdata));
         } catch (Exception e) {
             log.error("Failed to load file from " + filepath);
             log.debug(e.getMessage());
@@ -237,28 +233,11 @@ public class SessionUtil {
             throw new RuntimeException("Failed to load file.");
         }
 
-        // check password
-        byte[] passHash = decoder.decode(content[0]);
-        byte[] salt = decoder.decode(content[1]);
-        if (!EncryptionUtil.compareKeys(password, salt, passHash)) {
-            log.error("Wrong password.");
-            throw new RuntimeException("Wrong password.");
-        }
-
-        try {
-            this.key = EncryptionUtil.generateKeyFromPassword(password, salt);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        this.iv = new IvParameterSpec(decoder.decode(content[2]));
-
-
         // decrypt content
-        String encryptedData = content[3];
         String decryptedData;
         JsonNode json;
         try {
-            decryptedData = EncryptionUtil.decrypt(encryptedData, key, iv);
+            decryptedData = EncryptionUtil.decrypt(cipherdata, password);
             json = mapper.readTree(decryptedData);
         } catch (JsonProcessingException e) {
             log.error("Couldn't read data.");
@@ -278,7 +257,7 @@ public class SessionUtil {
     }
 
     /**
-     * writes the current content including password hash and salt into a file
+     * encrypts and writes the current content into a file
      * @param filepath path where file gets stored
      * @param password plaintext password
      * @return boolean, whether successful or not
@@ -288,14 +267,12 @@ public class SessionUtil {
         log.debug("Path: " + filepath);
 
         String content;
-        byte[] salt = new byte[16];
-        new SecureRandom().nextBytes(salt);
 
         // prepare content
         try {
-            this.key = EncryptionUtil.generateKeyFromPassword(password, salt);
-            this.iv = EncryptionUtil.generateIV();
-            content = EncryptionUtil.encrypt(this.contractsToString(), this.key, this.iv);
+            byte[] encryptOutput = EncryptionUtil.encrypt(this.contractsToString(), password);
+            log.debug("encrypted write: " + Arrays.toString(encryptOutput));
+            content = Arrays.toString(encryptOutput);
         } catch (Exception e) {
             log.error("Error during key generation.");
             log.debug(e.getMessage());
@@ -304,21 +281,12 @@ public class SessionUtil {
         }
 
         // actually write content
-        // syntax: "<pass hash>:<salt>:<IV>:<content>"
         try {
-            String writableContent = encoder.encodeToString(this.key.getEncoded()) +
-                    ":" +
-                    encoder.encodeToString(salt) +
-                    ":" +
-                    encoder.encodeToString(this.iv.getIV()) +
-                    ":" +
-                    content
-            ;
             File myFile = new File(filepath);
             if (myFile.createNewFile()) {
                 log.info("File " + filepath + " created.");
                 FileWriter writer = new FileWriter(myFile);
-                writer.write(writableContent);
+                writer.write(content);
                 writer.close();
                 log.info("Successfully written to file.");
             } else {
@@ -329,7 +297,7 @@ public class SessionUtil {
                 }
                 log.info("File " + filepath + " created.");
                 FileWriter writer = new FileWriter(myFile);
-                writer.write(writableContent);
+                writer.write(content);
                 writer.close();
                 log.info("Successfully written to file.");
             }
