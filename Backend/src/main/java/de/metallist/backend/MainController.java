@@ -9,8 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static de.metallist.backend.utilities.ReasonCodes.*;
 import static org.springframework.http.HttpStatus.*;
@@ -177,7 +177,7 @@ public class MainController {
         String filepath = request.get("filepath").asText();
         String password = request.get("password").asText();
 
-        ArrayList<Contract> result = session.loadFile(filepath, password);
+        List<Contract> result = session.loadFile(filepath, password);
 
         if (result == null || result.isEmpty())
             return ResponseEntity.badRequest().body(HttpResponse.requestGetAllContracts(RC_IMPORT_FAILED, session.getContracts()));

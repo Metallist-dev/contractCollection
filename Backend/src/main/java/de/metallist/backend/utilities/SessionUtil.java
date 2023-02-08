@@ -11,13 +11,21 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.io.File;
 import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.prefs.Preferences;
 
 /**
@@ -210,28 +218,29 @@ public class SessionUtil {
      * @param filepath path of file to open
      * @param password password to unlock the file
      */
-    public ArrayList<Contract> loadFile(String filepath, String password) {
+    public List<Contract> loadFile(String filepath, String password) {
         log.info("Try to unlock and load file: " + filepath);
 
+        String fileContent;
         byte[] cipherdata;
 
         // read file content
         try {
-            String content = Files.readString(Paths.get(filepath));
-
-            String[] bytevals = content.substring(1, content.length() - 1).split(",");
-            byte[] data = new byte[bytevals.length];
-            for (int i = 0; i < data.length; i++) {
-                data[i] = Byte.parseByte(bytevals[i].trim());
-            }
-            cipherdata = data;
-            log.debug("content load: " + Arrays.toString(cipherdata));
+            fileContent = Files.readString(Paths.get(filepath));
         } catch (Exception e) {
             log.error("Failed to load file from " + filepath);
             log.debug(e.getMessage());
             log.debug(Arrays.toString(e.getStackTrace()));
-            throw new RuntimeException("Failed to load file.");
+            throw new IllegalArgumentException("Failed to load file.");
         }
+
+        String[] bytevals = fileContent.substring(1, fileContent.length() - 1).split(",");
+        byte[] data = new byte[bytevals.length];
+        for (int i = 0; i < data.length; i++) {
+            data[i] = Byte.parseByte(bytevals[i].trim());
+        }
+        cipherdata = data;
+        log.debug("content load: " + Arrays.toString(cipherdata));
 
         // decrypt content
         String decryptedData;
@@ -243,12 +252,25 @@ public class SessionUtil {
             log.error("Couldn't read data.");
             log.debug(e.getMessage());
             log.debug(Arrays.toString(e.getStackTrace()));
-            throw new RuntimeException("Couldn't read data.");
-        } catch (Exception e) {
+            throw new IllegalArgumentException("Failed to read data.");
+        } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidAlgorithmParameterException |
+                 InvalidKeyException | InvalidKeySpecException e) {
             log.error("Couldn't decrypt data.");
             log.debug(e.getMessage());
             log.debug(Arrays.toString(e.getStackTrace()));
-            throw new RuntimeException("Couldn't decrypt data.");
+            throw new IllegalStateException("Failed to decrypt data.");
+        } catch (BadPaddingException | IllegalBlockSizeException e) {
+            log.error("Couldn't decrypt data.");
+            log.debug(e.getMessage());
+            log.debug(Arrays.toString(e.getStackTrace()));
+            throw new IllegalArgumentException("Failed to decrypt data.");
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            log.debug(e.getMessage());
+            log.debug(Arrays.toString(e.getStackTrace()));
+            if (e.getMessage().contains("IV length"))
+                throw new IllegalStateException("decryption failed");
+            else throw new IllegalStateException("Something undefined went wrong whilst decryption.");
         }
         contracts = this.importContracts(json);
         preferences.put("Filepath", filepath);
@@ -277,7 +299,7 @@ public class SessionUtil {
             log.error("Error during key generation.");
             log.debug(e.getMessage());
             log.debug(Arrays.toString(e.getStackTrace()));
-            throw new RuntimeException("Error during key generation.");
+            throw new IllegalStateException("Error during key generation.");
         }
 
         // actually write content
@@ -293,7 +315,7 @@ public class SessionUtil {
                 Files.deleteIfExists(Path.of(filepath));
                 if (!myFile.createNewFile()) {
                     log.error("Existing file " + filepath + " was not deleted.");
-                    throw new RuntimeException("Existing file " + filepath + " was not deleted.");
+                    throw new IllegalStateException("Existing file " + filepath + " was not deleted.");
                 }
                 log.info("File " + filepath + " created.");
                 FileWriter writer = new FileWriter(myFile);
@@ -305,7 +327,7 @@ public class SessionUtil {
             log.error("Error while writing file.");
             log.debug(e.getMessage());
             log.debug(Arrays.toString(e.getStackTrace()));
-            throw new RuntimeException("Error while writing file.");
+            throw new IllegalStateException("Error while writing file.");
         }
         return true;
     }
