@@ -102,7 +102,7 @@ public class MainController {
                 log.info("Successfully deleted by object.");
                 return ResponseEntity.status(OK).body(HttpResponse.requestDeleteContract(RC_DELETE_SUCCESS));
             } else
-                throw new IllegalStateException("Something went wrong during deletion of the contract with ID \" + id + \".");
+                throw new IllegalStateException("Something went wrong during deletion of the contract with ID " + id + ".");
 
         } catch (NullPointerException npe) {
             String message = RC_DELETE_MISSING + ": the contract with ID " + id + " and name " +  name + " is unavailable.";

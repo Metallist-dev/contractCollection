@@ -1,17 +1,17 @@
 plugins {
-    id 'org.springframework.boot' version '2.6.3'
+    id 'org.springframework.boot' version '3.0.2'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
 }
 
 ext {
-    SpringVersion = '2.6.3'
+    SpringVersion = '3.0.2'
     TestNGVersion = '7.7.0'
 }
 
 group = 'de.metallist'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '11'
+version = '0.0.2-SNAPSHOT'
+sourceCompatibility = '17'
 
 repositories {
     mavenCentral()
