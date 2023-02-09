@@ -30,6 +30,7 @@ jobs:
       - name: Test with TestNG
         uses: gradle/gradle-build-action@v2
         with:
+          gradle-version: 7.6
           arguments: -b build.gradle test
 
   docs:
