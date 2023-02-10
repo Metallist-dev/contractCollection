@@ -29,11 +29,6 @@ jobs:
     needs: build
 
     steps:
-      - name: check java version
-        run: |
-          cd Backend
-          gradle --version
-
       - name: Test with TestNG
         uses: gradle/gradle-build-action@v2
         with:
