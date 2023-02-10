@@ -30,7 +30,7 @@ jobs:
 
     steps:
       - name: check java version
-        run:
+        run: |
           cd Backend
           gradle --version
 
