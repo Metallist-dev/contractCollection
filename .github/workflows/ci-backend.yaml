@@ -31,6 +31,9 @@ jobs:
     steps:
       - name: check java version
         uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: 7.6
+          build-root-directory: Backend
         run:
           gradle --version
 
