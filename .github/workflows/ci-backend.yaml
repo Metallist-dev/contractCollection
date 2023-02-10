@@ -21,7 +21,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           gradle-version: 7.6
-          arguments: --args='--spring.profiles.active=prod' assemble
+          arguments: -Dspring.profiles.active=prod assemble
           build-root-directory: Backend
 
   test:
@@ -33,7 +33,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           gradle-version: 7.6
-          arguments: --args='--spring.profiles.active=prod' test
+          arguments: -Dspring.profiles.active=prod test
           build-root-directory: Backend
 
 
