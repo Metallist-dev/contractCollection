@@ -34,7 +34,7 @@ import static org.testng.Assert.*;
  * @author Metallist-dev
  * @version 0.2
  */
-@SpringBootTest(classes = BackendApplication.class)
+@SpringBootTest
 public class MainControllerTest extends AbstractTestNGSpringContextTests {
 
     @Mock

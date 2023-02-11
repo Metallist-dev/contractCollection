@@ -1,5 +1,6 @@
 package de.metallist.backend.utilities;
 
+import org.springframework.boot.test.context.SpringBootTest;
 import org.testng.annotations.Test;
 
 import javax.crypto.SecretKey;
@@ -10,6 +11,7 @@ import java.util.Arrays;
 
 import static org.testng.Assert.*;
 
+@SpringBootTest
 public class EncryptionUtilTest {
 
     private final String password = "supersecret";

@@ -1,6 +1,7 @@
 package de.metallist.backend.utilities;
 
 import de.metallist.backend.Contract;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -15,6 +16,7 @@ import java.util.prefs.Preferences;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
+@SpringBootTest
 public class SessionUtilTest {
     private SessionUtil session;
 

@@ -153,7 +153,13 @@ dependencies {
 
 }
 
+bootRun {
+    systemProperty 'spring.profiles.active', 'prod'
+}
+
 test {
+    systemProperty 'spring.profiles.active', 'prod'
+
     testLogging {
         showStandardStreams = true
     }
