@@ -11,17 +11,21 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.io.File;
 import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.SecureRandom;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
+import java.util.List;
 import java.util.prefs.Preferences;
 
 /**
@@ -36,18 +40,11 @@ public class SessionUtil {
     @Getter
     private ArrayList<Contract> contracts;
 
-    private SecretKey key;
-
-    private IvParameterSpec iv;
-
     private final Preferences preferences;
 
     private String password;
 
     private final ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
-
-    private final Base64.Encoder encoder = Base64.getEncoder();
-    private final Base64.Decoder decoder = Base64.getDecoder();
 
     public SessionUtil() {
         this.contracts = new ArrayList<>();
@@ -173,7 +170,7 @@ public class SessionUtil {
      * @return              all imported contracts
      */
     private ArrayList<Contract> importContracts(JsonNode importJson) {
-        if (importJson.getNodeType() != JsonNodeType.ARRAY) return null;
+        if (importJson.getNodeType() != JsonNodeType.ARRAY) return new ArrayList<>();
 
         for (JsonNode contractJson : importJson) {
             Contract contract = new Contract();
@@ -221,55 +218,59 @@ public class SessionUtil {
      * @param filepath path of file to open
      * @param password password to unlock the file
      */
-    public ArrayList<Contract> loadFile(String filepath, String password) {
+    public List<Contract> loadFile(String filepath, String password) {
         log.info("Try to unlock and load file: " + filepath);
 
-        String[] content;
+        String fileContent;
+        byte[] cipherdata;
 
-        // split file content
+        // read file content
         try {
-            // syntax: "<pass hash>:<salt>:<IV>:<content>"
-            content = Files.readString(Paths.get(filepath)).split(":");
+            fileContent = Files.readString(Paths.get(filepath));
         } catch (Exception e) {
             log.error("Failed to load file from " + filepath);
             log.debug(e.getMessage());
             log.debug(Arrays.toString(e.getStackTrace()));
-            throw new RuntimeException("Failed to load file.");
+            throw new IllegalArgumentException("Failed to load file.");
         }
 
-        // check password
-        byte[] passHash = decoder.decode(content[0]);
-        byte[] salt = decoder.decode(content[1]);
-        if (!EncryptionUtil.compareKeys(password, salt, passHash)) {
-            log.error("Wrong password.");
-            throw new RuntimeException("Wrong password.");
+        String[] bytevals = fileContent.substring(1, fileContent.length() - 1).split(",");
+        byte[] data = new byte[bytevals.length];
+        for (int i = 0; i < data.length; i++) {
+            data[i] = Byte.parseByte(bytevals[i].trim());
         }
-
-        try {
-            this.key = EncryptionUtil.generateKeyFromPassword(password, salt);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        this.iv = new IvParameterSpec(decoder.decode(content[2]));
-
+        cipherdata = data;
+        log.debug("content load: " + Arrays.toString(cipherdata));
 
         // decrypt content
-        String encryptedData = content[3];
         String decryptedData;
         JsonNode json;
         try {
-            decryptedData = EncryptionUtil.decrypt(encryptedData, key, iv);
+            decryptedData = EncryptionUtil.decrypt(cipherdata, password);
             json = mapper.readTree(decryptedData);
         } catch (JsonProcessingException e) {
             log.error("Couldn't read data.");
             log.debug(e.getMessage());
             log.debug(Arrays.toString(e.getStackTrace()));
-            throw new RuntimeException("Couldn't read data.");
-        } catch (Exception e) {
+            throw new IllegalArgumentException("Failed to read data.");
+        } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidAlgorithmParameterException |
+                 InvalidKeyException | InvalidKeySpecException e) {
             log.error("Couldn't decrypt data.");
             log.debug(e.getMessage());
             log.debug(Arrays.toString(e.getStackTrace()));
-            throw new RuntimeException("Couldn't decrypt data.");
+            throw new IllegalStateException("Failed to decrypt data.");
+        } catch (BadPaddingException | IllegalBlockSizeException e) {
+            log.error("Couldn't decrypt data.");
+            log.debug(e.getMessage());
+            log.debug(Arrays.toString(e.getStackTrace()));
+            throw new IllegalArgumentException("Failed to decrypt data.");
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            log.debug(e.getMessage());
+            log.debug(Arrays.toString(e.getStackTrace()));
+            if (e.getMessage().contains("IV length"))
+                throw new IllegalStateException("decryption failed");
+            else throw new IllegalStateException("Something undefined went wrong whilst decryption.");
         }
         contracts = this.importContracts(json);
         preferences.put("Filepath", filepath);
@@ -278,7 +279,7 @@ public class SessionUtil {
     }
 
     /**
-     * writes the current content including password hash and salt into a file
+     * encrypts and writes the current content into a file
      * @param filepath path where file gets stored
      * @param password plaintext password
      * @return boolean, whether successful or not
@@ -288,48 +289,37 @@ public class SessionUtil {
         log.debug("Path: " + filepath);
 
         String content;
-        byte[] salt = new byte[16];
-        new SecureRandom().nextBytes(salt);
 
         // prepare content
         try {
-            this.key = EncryptionUtil.generateKeyFromPassword(password, salt);
-            this.iv = EncryptionUtil.generateIV();
-            content = EncryptionUtil.encrypt(this.contractsToString(), this.key, this.iv);
+            byte[] encryptOutput = EncryptionUtil.encrypt(this.contractsToString(), password);
+            log.debug("encrypted write: " + Arrays.toString(encryptOutput));
+            content = Arrays.toString(encryptOutput);
         } catch (Exception e) {
             log.error("Error during key generation.");
             log.debug(e.getMessage());
             log.debug(Arrays.toString(e.getStackTrace()));
-            throw new RuntimeException("Error during key generation.");
+            throw new IllegalStateException("Error during key generation.");
         }
 
         // actually write content
-        // syntax: "<pass hash>:<salt>:<IV>:<content>"
         try {
-            String writableContent = encoder.encodeToString(this.key.getEncoded()) +
-                    ":" +
-                    encoder.encodeToString(salt) +
-                    ":" +
-                    encoder.encodeToString(this.iv.getIV()) +
-                    ":" +
-                    content
-            ;
             File myFile = new File(filepath);
             if (myFile.createNewFile()) {
                 log.info("File " + filepath + " created.");
                 FileWriter writer = new FileWriter(myFile);
-                writer.write(writableContent);
+                writer.write(content);
                 writer.close();
                 log.info("Successfully written to file.");
             } else {
                 Files.deleteIfExists(Path.of(filepath));
                 if (!myFile.createNewFile()) {
                     log.error("Existing file " + filepath + " was not deleted.");
-                    throw new RuntimeException("Existing file " + filepath + " was not deleted.");
+                    throw new IllegalStateException("Existing file " + filepath + " was not deleted.");
                 }
                 log.info("File " + filepath + " created.");
                 FileWriter writer = new FileWriter(myFile);
-                writer.write(writableContent);
+                writer.write(content);
                 writer.close();
                 log.info("Successfully written to file.");
             }
@@ -337,7 +327,7 @@ public class SessionUtil {
             log.error("Error while writing file.");
             log.debug(e.getMessage());
             log.debug(Arrays.toString(e.getStackTrace()));
-            throw new RuntimeException("Error while writing file.");
+            throw new IllegalStateException("Error while writing file.");
         }
         return true;
     }
@@ -347,7 +337,7 @@ public class SessionUtil {
      * @return true if export successful
      */
     public boolean prepareShutdown() {
-        String filepath = preferences.get("Filepath", "");
+        String filepath = preferences.get("Filepath", System.getProperty("user.home"));
         return this.writeFile(filepath, this.password);
     }
 }

@@ -23,6 +23,8 @@ public enum ReasonCodes {
     RC_IMPORT_FAILED("RC_IMP_10", "failed to import all contracts"),
     RC_EXPORT_SUCCESS("RC_EXP_00", "successfully exported contracts"),
     RC_EXPORT_FAILED("RC_EXP_10", "failed to export all contracts"),
+    RC_SHUTDOWN_SUCCESS("RC_SHT_00", "shutdown successfully prepared"),
+    RC_SHUTDOWN_FAILED("RC_SHT_10", "shutdown preparation failed"),
     RC_GENERAL_ERROR("RC_GEN_99", "action failed");
 
     @Getter

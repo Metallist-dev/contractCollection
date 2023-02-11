@@ -1,6 +1,7 @@
 package de.metallist.backend.utilities;
 
 import de.metallist.backend.Contract;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -9,11 +10,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.prefs.Preferences;
 
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
+@SpringBootTest
 public class SessionUtilTest {
     private SessionUtil session;
 
@@ -86,7 +89,7 @@ public class SessionUtilTest {
         String filepath = new File("src/test/resources/testExportedFile.txt").getAbsolutePath();
         String falsepath = new File("src/resources/testExportedFile.txt").getAbsolutePath();
         String corruptedFile = new File("src/test/resources/testCorruptedFile.txt").getAbsolutePath();
-        ArrayList<Contract> contracts = new ArrayList<>();
+        List<Contract> contracts = new ArrayList<>();
 
         // wrong file path
         session.removeAllContracts();
@@ -101,7 +104,7 @@ public class SessionUtilTest {
         try {
             contracts = session.loadFile(filepath, "0123superSecret!");
         } catch (Exception e) {
-            assertEquals(e.getMessage(), "Wrong password.");
+            assertEquals(e.getMessage(), "Failed to decrypt data.");
         }
         assertEquals(contracts.size(), 0);
 
@@ -109,7 +112,7 @@ public class SessionUtilTest {
         try {
             contracts = session.loadFile(corruptedFile, "123superSecret!");
         } catch (Exception e) {
-            assertEquals(e.getMessage(), "Couldn't read data.");
+            assertEquals(e.getMessage(), "decryption failed");
         }
         assertEquals(contracts.size(), 0);
 

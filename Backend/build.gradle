@@ -1,8 +1,8 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '2.6.3'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id 'org.openapi.generator' version '5.4.0'
+    id 'org.springframework.boot' version '3.0.2'
+    id 'io.spring.dependency-management' version '1.1.0'
+    id 'org.openapi.generator' version '6.3.0'
     //id 'org.asciidoctor.jvm.convert' version '3.3.2'
     id "jacoco"
     id 'org.hidetake.swagger.generator' version '2.19.2'
@@ -12,16 +12,17 @@ apply plugin: 'org.openapi.generator'
 //apply plugin: 'org.asciidoctor.jvm.convert'
 
 // VARIABLES
-def SpringVersion = '2.6.3'
-def TestNGVersion = '7.5'
-def JacksonVersion = '2.13.1'
-def OpenAPIVersion = '1.6.6'
-def jacocoVersion = '0.8.7'
+def SpringVersion = '3.0.2'
+def TestNGVersion = '7.7.1'
+def JacksonVersion = '2.14.2'
+def OpenAPIVersion = '1.6.14'
+def jacocoVersion = '0.8.8'
 // VARIABLES
 
 group = 'de.metallist'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '11'
+version = '0.0.2-SNAPSHOT'
+sourceCompatibility = '17'
+targetCompatibility = '17'
 
 repositories {
     mavenCentral()
@@ -32,12 +33,12 @@ repositories {
 
 openApiGenerate {
     generatorName = "html2"
-    inputSpec = "$rootDir/src/main/resources/static/contractcollection-api.yaml" as Object
-    outputDir = "$buildDir/docs/openapi" as Object
+    inputSpec = "$rootDir/src/main/resources/static/contractcollection-api.yaml"
+    outputDir = "$buildDir/docs/openapi"
 }
 
 openApiValidate {
-    inputSpec = "$rootDir/src/main/resources/static/contractcollection-api.yaml" as Object
+    inputSpec = "$rootDir/src/main/resources/static/contractcollection-api.yaml"
 }
 
 swaggerSources {
@@ -122,7 +123,7 @@ dependencies {
 
     // Apache License 2.0
     // https://mvnrepository.com/artifact/org.openapitools/openapi-generator-gradle-plugin
-    implementation group: 'org.openapitools', name: 'openapi-generator-gradle-plugin', version: '5.4.0'
+    implementation group: 'org.openapitools', name: 'openapi-generator-gradle-plugin', version: '6.3.0'
 
     // unknown license
     // https://mvnrepository.com/artifact/org.asciidoctor/asciidoctor-gradle-jvm
@@ -130,7 +131,7 @@ dependencies {
 
     // Apache License 2.0
     // https://mvnrepository.com/artifact/org.webjars/swagger-ui
-    swaggerUI 'org.webjars:swagger-ui:4.10.3'
+    swaggerUI 'org.webjars:swagger-ui:4.15.5'
 
 
 
@@ -144,7 +145,7 @@ dependencies {
 
     // MIT License
     // https://mvnrepository.com/artifact/org.mockito/mockito-testng
-    testImplementation group: 'org.mockito', name: 'mockito-testng', version: '0.4.16'
+    testImplementation group: 'org.mockito', name: 'mockito-testng', version: '0.4.31'
 
     // EPL 2.0
     // https://mvnrepository.com/artifact/org.jacoco/org.jacoco.agent
@@ -152,7 +153,13 @@ dependencies {
 
 }
 
+bootRun {
+    systemProperty 'spring.profiles.active', 'prod'
+}
+
 test {
+    systemProperty 'spring.profiles.active', 'prod'
+
     testLogging {
         showStandardStreams = true
     }

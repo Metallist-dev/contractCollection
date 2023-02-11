@@ -11,12 +11,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -32,7 +34,7 @@ import static org.testng.Assert.*;
  * @author Metallist-dev
  * @version 0.2
  */
-@SpringBootTest(classes = BackendApplication.class)
+@SpringBootTest
 public class MainControllerTest extends AbstractTestNGSpringContextTests {
 
     @Mock
@@ -50,16 +52,19 @@ public class MainControllerTest extends AbstractTestNGSpringContextTests {
 
     @BeforeClass
     public void setup() {
-        MockitoAnnotations.openMocks(this);
-        request = new MockHttpServletRequest();
-        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
-
         this.testContract = new Contract(1000, "insurance", "test insurance", 100.0f, 1,
                 "123abc", "789xyz", "2022-01-01",12, 2,
                 "test description", "/path/to/stuff");
         this.testContract2 = new Contract(1000, "insurance", "test insurance #2", 200.0f,
                 1, "123abc", "456qwe", "2022-03-01",12, 2,
                 "test description", "/path/to/other/stuff");
+    }
+
+    @BeforeMethod
+    public void init() {
+        MockitoAnnotations.openMocks(this);
+        request = new MockHttpServletRequest();
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
 
         controller = new MainController(session);
     }
@@ -84,7 +89,7 @@ public class MainControllerTest extends AbstractTestNGSpringContextTests {
         ResponseEntity<JsonNode> response = controller.addContract(requestJson);
 
         assertNotNull(response.getBody());
-        assertEquals(response.getStatusCodeValue(), 200);
+        assertEquals(response.getStatusCode(), HttpStatus.OK);
         assertEquals(response.getBody().get("head").get("reasonCode").asText(), RC_CREATE_SUCCESS.getCodenumber());
 
 
@@ -93,38 +98,40 @@ public class MainControllerTest extends AbstractTestNGSpringContextTests {
         response = controller.addContract(requestJson);
 
         assertNotNull(response.getBody());
-        assertEquals(response.getStatusCodeValue(), 400);
+        assertEquals(response.getStatusCode(), HttpStatus.BAD_REQUEST);
         assertEquals(response.getBody().get("head").get("reasonCode").asText(), RC_CREATE_ERROR.getCodenumber());
     }
 
     @Test
     public void test_01_deleteContract() throws JsonProcessingException {
+        System.out.println(session.getContracts());
         JsonNode requestJson = mapper.readTree("{\"id\": 1, \"name\": \"health insurance\"}");
 
         when(session.removeContract(anyInt())).thenReturn(true);
+        when(session.removeContract(any(Contract.class))).thenReturn(true);
         ResponseEntity<JsonNode> response = controller.deleteContract(requestJson);
         assertNotNull(response.getBody());
-        assertEquals(response.getStatusCodeValue(), 200);
+        assertEquals(response.getStatusCode(), HttpStatus.OK);
         assertEquals(response.getBody().get("head").get("reasonCode").asText(), RC_DELETE_SUCCESS.getCodenumber());
 
         when(session.removeContract(anyInt())).thenReturn(false);
         when(session.removeContract(any())).thenReturn(true);
         response = controller.deleteContract(requestJson);
         assertNotNull(response.getBody());
-        assertEquals(response.getStatusCodeValue(), 200);
+        assertEquals(response.getStatusCode(), HttpStatus.OK);
         assertEquals(response.getBody().get("head").get("reasonCode").asText(), RC_DELETE_SUCCESS.getCodenumber());
 
         when(session.removeContract(anyInt())).thenReturn(false);
         when(session.removeContract(any())).thenReturn(false);
         response = controller.deleteContract(requestJson);
         assertNotNull(response.getBody());
-        assertEquals(response.getStatusCodeValue(), 500);
+        assertEquals(response.getStatusCode(), HttpStatus.INTERNAL_SERVER_ERROR);
         assertEquals(response.getBody().get("head").get("reasonCode").asText(), RC_DELETE_ERROR.getCodenumber());
 
         when(session.removeContract(anyInt())).thenThrow(NullPointerException.class);
         response = controller.deleteContract(requestJson);
         assertNotNull(response.getBody());
-        assertEquals(response.getStatusCodeValue(), 404);
+        assertEquals(response.getStatusCode(), HttpStatus.NOT_FOUND);
         assertEquals(response.getBody().get("head").get("reasonCode").asText(), RC_DELETE_MISSING.getCodenumber());
 
     }
@@ -151,7 +158,7 @@ public class MainControllerTest extends AbstractTestNGSpringContextTests {
         ResponseEntity<JsonNode> response = controller.getAllContracts();
 
         assertNotNull(response.getBody());
-        assertEquals(response.getStatusCodeValue(), 200);
+        assertEquals(response.getStatusCode(), HttpStatus.OK);
         assertEquals(response.getBody().get("head").get("reasonCode").asText(), RC_GENERAL_SUCCESS.getCodenumber());
     }
 
@@ -161,13 +168,13 @@ public class MainControllerTest extends AbstractTestNGSpringContextTests {
         when(session.getSingleContract(anyInt())).thenReturn(testContract);
         ResponseEntity<JsonNode> response = controller.getSingleContract(1000);
         assertNotNull(response.getBody());
-        assertEquals(response.getStatusCodeValue(), 200);
+        assertEquals(response.getStatusCode(), HttpStatus.OK);
         assertEquals(response.getBody().get("head").get("reasonCode").asText(), RC_GENERAL_SUCCESS.getCodenumber());
 
         when(session.getSingleContract(anyInt())).thenReturn(null);
         response = controller.getSingleContract(0);
         assertNotNull(response.getBody());
-        assertEquals(response.getStatusCodeValue(), 404);
+        assertEquals(response.getStatusCode(), HttpStatus.NOT_FOUND);
         assertEquals(response.getBody().get("head").get("reasonCode").asText(), RC_GENERAL_ERROR.getCodenumber());
     }
 
@@ -186,13 +193,13 @@ public class MainControllerTest extends AbstractTestNGSpringContextTests {
         when(session.updateContract(anyInt(), anyString(), anyString())).thenReturn(updatedContract);
         ResponseEntity<JsonNode> response = controller.updateContract(1000, requestJson);
         assertNotNull(response.getBody());
-        assertEquals(response.getStatusCodeValue(), 200);
+        assertEquals(response.getStatusCode(), HttpStatus.OK);
         assertEquals(response.getBody().get("body").get("name").asText(), newValue);
 
         when(session.updateContract(anyInt(), anyString(), anyString())).thenReturn(null);
         response = controller.updateContract(1000, requestJson);
         assertNotNull(response.getBody());
-        assertEquals(response.getStatusCodeValue(), 409);
+        assertEquals(response.getStatusCode(), HttpStatus.CONFLICT);
         assertEquals(response.getBody().get("head").get("reasonCode").asText(), RC_UPDATE_ERROR.getCodenumber());
     }
 
@@ -212,14 +219,14 @@ public class MainControllerTest extends AbstractTestNGSpringContextTests {
         when(session.loadFile(anyString(), anyString())).thenReturn(mockList);
         ResponseEntity<JsonNode> response = controller.importFile(requestJson);
         assertNotNull(response.getBody());
-        assertEquals(response.getStatusCodeValue(), 200);
+        assertEquals(response.getStatusCode(), HttpStatus.OK);
         assertEquals(response.getBody().get("body").get(0).get("name").asText(), "testing insurance");
 
         doNothing().when(session).removeAllContracts();
         when(session.loadFile(anyString(), anyString())).thenReturn(null);
         response = controller.importFile(requestJson);
         assertNotNull(response.getBody());
-        assertEquals(response.getStatusCodeValue(), 400);
+        assertEquals(response.getStatusCode(), HttpStatus.BAD_REQUEST);
         assertEquals(response.getBody().get("head").get("reasonCode").asText(), RC_IMPORT_FAILED.getCodenumber());
     }
 
@@ -236,13 +243,13 @@ public class MainControllerTest extends AbstractTestNGSpringContextTests {
         when(session.writeFile(anyString(), anyString())).thenReturn(true);
         ResponseEntity<JsonNode> response = controller.exportToFile(requestJson);
         assertNotNull(response.getBody());
-        assertEquals(response.getStatusCodeValue(), 200);
+        assertEquals(response.getStatusCode(), HttpStatus.OK);
         assertEquals(response.getBody().get("head").get("reasonCode").asText(), RC_EXPORT_SUCCESS.getCodenumber());
 
         when(session.writeFile(anyString(), anyString())).thenReturn(false);
         response = controller.exportToFile(requestJson);
         assertNotNull(response.getBody());
-        assertEquals(response.getStatusCodeValue(), 400);
+        assertEquals(response.getStatusCode(), HttpStatus.BAD_REQUEST);
         assertEquals(response.getBody().get("head").get("reasonCode").asText(), RC_EXPORT_FAILED.getCodenumber());
     }
 
@@ -250,10 +257,10 @@ public class MainControllerTest extends AbstractTestNGSpringContextTests {
     public void test_07_shutdown() {
         when(session.prepareShutdown()).thenReturn(true);
         ResponseEntity<JsonNode> response = controller.prepareShutdown();
-        assertEquals(response.getStatusCodeValue(), 200);
+        assertEquals(response.getStatusCode(), HttpStatus.OK);
 
         when(session.prepareShutdown()).thenReturn(false);
         response = controller.prepareShutdown();
-        assertEquals(response.getStatusCodeValue(), 500);
+        assertEquals(response.getStatusCode(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

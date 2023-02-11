@@ -18,7 +18,7 @@ keeping these data in a quite secure place (i.e. the local machine) this softwar
 ---
 ## General info
 * Status: under development
-* Version: 0.0.1-alpha
+* Version: 0.0.2-alpha
 * Build status: [![backend-CI](https://github.com/Metallist-dev/contractCollection/actions/workflows/ci-backend.yaml/badge.svg?branch=main)](https://github.com/Metallist-dev/contractCollection/actions/workflows/ci-backend.yaml)
 * Code Coverage: [![coverage](https://metallist-images.de/github/contractcollection/main/coverage.svg)](https://metallist-images.de/github/contractcollection/main/coverage.svg)
 * Licence: no licence until now - **thereby all rights reserved** *(please ask for permission)*
@@ -29,18 +29,18 @@ keeping these data in a quite secure place (i.e. the local machine) this softwar
 ## Technologies
 
 ### Backend
-| **Product / Library**  | **Version** | **License**        | **Use**                             |
-|------------------------|:-----------:|--------------------|-------------------------------------|
-| Java                   |     11      | Apache License 2.0 | Basic Implementation                |
-| Spring Boot Framework  |    2.6.3    | Apache License 2.0 | Basic Implementation                |
-| Lombok                 |   1.18.22   | MIT License        | Reduction of boilerplate code       |
-| FasterXML Jackson Core |   2.13.1    | Apache License 2.0 | Processing of JSON used by the API  |
-| Springdoc OpenAPI 3.0  |    1.6.6    | Apache License 2.0 | API documentation, Swagger (live)   |
-| OpenAPI generator      |    5.4.0    | Apache License 2.0 | API documentation                   |
-| Swagger UI             |   4.10.3    | Apache License 2.0 | API documentation, Swagger (static) |
-| TestNG                 |     7.5     | Apache License 2.0 | Test implementation                 |
-| Mockito                |   0.4.16    | MIT License        | Test implementation                 |
-| Jacoco                 |    0.7.8    | EPL 2.0            | Test reports                        |
+| **Product / Library**  | **Version**  | **License**        | **Use**                             |
+|------------------------|:------------:|--------------------|-------------------------------------|
+| Java                   | 17 (openjdk) | GPL 2.0            | Basic Implementation                |
+| Spring Boot Framework  |    3.0.2     | Apache License 2.0 | Basic Implementation                |
+| Lombok                 |   1.18.22    | MIT License        | Reduction of boilerplate code       |
+| FasterXML Jackson Core |    2.14.2    | Apache License 2.0 | Processing of JSON used by the API  |
+| Springdoc OpenAPI 3.0  |    1.6.14    | Apache License 2.0 | API documentation, Swagger (live)   |
+| OpenAPI generator      |    6.3.0     | Apache License 2.0 | API documentation                   |
+| Swagger UI             |    4.15.5    | Apache License 2.0 | API documentation, Swagger (static) |
+| TestNG                 |    7.7.1     | Apache License 2.0 | Test implementation                 |
+| Mockito                |    0.4.31    | MIT License        | Test implementation                 |
+| Jacoco                 |    0.8.8     | EPL 2.0            | Test reports                        |
 
 
 [Back to top](#table-of-contents)
