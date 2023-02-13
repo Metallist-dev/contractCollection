@@ -115,51 +115,18 @@ public class SessionUtil {
         Contract newContract = this.getSingleContract(id);
 
         switch (key) {
-            case "category": {
-                newContract.setCategory(value);
-                break;
-            }
-            case "name": {
-                newContract.setName(value);
-                break;
-            }
-            case "expenses": {
-                newContract.setExpenses(Float.parseFloat(value));
-                break;
-            }
-            case "cycle": {
-                newContract.setCycle(Integer.parseInt(value));
-                break;
-            }
-            case "customerNr": {
-                newContract.setCustomerNr(value);
-                break;
-            }
-            case "contractNr": {
-                newContract.setContractNr(value);
-                break;
-            }
-            case "contractPeriod": {
-                newContract.setContractPeriod(Integer.parseInt(value));
-                break;
-            }
-            case "periodOfNotice": {
-                newContract.setPeriodOfNotice(Integer.parseInt(value));
-                break;
-            }
-            case "startDate": {
-                newContract.setStartDate(value);
-                break;
-            }
-            case "description": {
-                newContract.setDescription(value);
-                break;
-            }
-            case "documentPath": {
-                newContract.setDocumentPath(value);
-                break;
-            }
-            default: return null;
+            case "category"         -> newContract.setCategory(value);
+            case "name"             -> newContract.setName(value);
+            case "expenses"         -> newContract.setExpenses(Float.parseFloat(value));
+            case "cycle"            -> newContract.setCycle(Integer.parseInt(value));
+            case "customerNr"       -> newContract.setCustomerNr(value);
+            case "contractNr"       -> newContract.setContractNr(value);
+            case "contractPeriod"   -> newContract.setContractPeriod(Integer.parseInt(value));
+            case "periodOfNotice"   -> newContract.setPeriodOfNotice(Integer.parseInt(value));
+            case "startDate"        -> newContract.setStartDate(value);
+            case "description"      -> newContract.setDescription(value);
+            case "documentPath"     -> newContract.setDocumentPath(value);
+            default                 -> { return null; }
         }
         return newContract;
     }
