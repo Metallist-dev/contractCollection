@@ -1,0 +1,44 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name = "BackendTests">
+    <test name = "API tests">
+        <classes>
+            <class name = "de.metallistdev.contractcollection.application.utilities.SessionUtilTest">
+                <methods>
+                    <include name="test_00_AddContract" />
+                    <include name="test_01_GetSingleContract" />
+                    <include name="test_02_RemoveContractById" />
+                    <include name="test_03_RemoveContract" />
+                    <include name="test_04_UpdateContract" />
+                    <include name="test_05_writeFileTest" />
+                    <include name="test_06_loadFileTest" />
+                    <include name="test_07_GetContracts" />
+                    <include name="test_08_PrepareShutdown" />
+                </methods>
+            </class>
+
+            <class name="de.metallistdev.contractcollection.application.MainControllerTest">
+                <methods>
+                    <include name="test_00_newContract" />
+                    <include name="test_01_deleteContract" />
+                    <include name="test_02_readAllContracts" />
+                    <include name="test_03_readSingleContract" />
+                    <include name="test_04_updateContract" />
+                    <include name="test_05_importContracts" />
+                    <include name="test_06_exportContracts" />
+                    <include name="test_07_shutdown" />
+                </methods>
+            </class>
+
+            <class name="de.metallistdev.contractcollection.application.utilities.EncryptionUtilTest">
+                <methods>
+                    <include name="test_00_generateKeyFromPassword" />
+                    <include name="test_01_generateGCMSpecs" />
+                    <include name="test_02_regenerateGCMSpecs" />
+                    <include name="test_03_encryptDecrypt" />
+                </methods>
+            </class>
+        </classes>
+    </test>
+</suite>

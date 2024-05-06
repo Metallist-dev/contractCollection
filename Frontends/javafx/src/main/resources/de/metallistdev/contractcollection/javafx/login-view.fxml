@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+
+<GridPane hgap="15.0" vgap="15.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="de.metallistdev.contractcollection.javafx.LoginView">
+    <padding>
+        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
+    </padding>
+    <columnConstraints>
+        <ColumnConstraints/>
+        <ColumnConstraints/>
+        <ColumnConstraints/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints/>
+        <RowConstraints/>
+        <RowConstraints/>
+    </rowConstraints>
+    <Label text="File Location:">
+        <font>
+            <Font name="Roboto" size="13.0"/>
+        </font>
+        <GridPane.margin>
+            <Insets/>
+        </GridPane.margin>
+    </Label>
+    <Label text="Password:" GridPane.rowIndex="1">
+        <font>
+            <Font name="Roboto" size="13.0"/>
+        </font>
+    </Label>
+    <TextField GridPane.columnIndex="1" fx:id="filepathInput"/>
+    <PasswordField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="passwordInput"/>
+    <Button mnemonicParsing="false" text="Choose file ..." GridPane.columnIndex="2" onAction="#handleChooseFile"/>
+    <Button mnemonicParsing="false" text="Open" GridPane.columnIndex="2" GridPane.rowIndex="1" onAction="#handlePasswordCommit2"/>
+</GridPane>
