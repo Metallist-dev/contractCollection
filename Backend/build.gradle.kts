@@ -1,5 +1,3 @@
-import org.hidetake.gradle.swagger.generator.GenerateSwaggerCode
-
 plugins {
     id("org.springframework.boot") version "3.2.3"
     id("io.spring.dependency-management") version "1.1.4"
@@ -45,13 +43,13 @@ configurations {
 }
 
 openApiGenerate {
-    generatorName = "html2"
-    inputSpec = "$rootDir/src/main/resources/static/contractcollection-api.yaml"
-    outputDir = "${layout.buildDirectory}/docs/openapi"
+    generatorName.set("html2")
+    inputSpec.set("$rootDir/src/main/resources/static/contractcollection-api.yaml")
+    outputDir.set("${layout.buildDirectory}/docs/openapi")
 }
 
 openApiValidate {
-    inputSpec = "$rootDir/src/main/resources/static/contractcollection-api.yaml"
+    inputSpec.set("$rootDir/src/main/resources/static/contractcollection-api.yaml")
 }
 
 
