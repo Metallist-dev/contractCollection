@@ -24,8 +24,8 @@ group = "de.metallistdev"
 version = "0.0.1-SNAPSHOT"
 
 application {
-    mainModule = "de.metallistdev.contractcollection.javafx"
-    mainClass = "de.metallistdev.contractcollection.javafx.ContractCollectionApplication"
+    mainModule.set("de.metallistdev.contractcollection.javafx")
+    mainClass.set("de.metallistdev.contractcollection.javafx.ContractCollectionApplication")
 }
 
 javafx {
