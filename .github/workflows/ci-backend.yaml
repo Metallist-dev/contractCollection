@@ -41,8 +41,10 @@ jobs:
         working-directory: Backend
 
     steps:
-      - name: make gradlew runnable
-        run: chmod +x ./gradlew
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5  # v3.1.0
+        with:
+          gradle-version: '8.6'
 
       - name: create API documentation
         run: |
@@ -52,10 +54,10 @@ jobs:
           rm build/docs/swaggerUI-Backend/index.html && mv build/docs/swaggerUI-Backend/swaggerUI.html build/docs/swaggerUI-Backend/index.html
 
       - name: create javadoc documentation
-        run: ./gradlew javadoc
+        run: ./gradlew :Backend:javadoc
 
       - name: create jacoco documentation
-        run: ./gradlew test
+        run: ./gradlew :Backend:test
 
       - name: upload docs to artifact
         uses: actions/upload-artifact@v3
