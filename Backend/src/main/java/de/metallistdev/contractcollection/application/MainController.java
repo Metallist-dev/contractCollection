@@ -182,7 +182,7 @@ public class MainController {
 
         if (result == null || result.isEmpty())
             return ResponseEntity.badRequest().body(HttpResponse.requestGetAllContracts(ReasonCodes.RC_IMPORT_FAILED, session.getContracts()));
-        else return ResponseEntity.ok(HttpResponse.requestGetAllContracts(ReasonCodes.RC_IMPORT_SUCCESS, session.getContracts()));
+        else return ResponseEntity.ok(HttpResponse.requestGetAllContracts(ReasonCodes.RC_IMPORT_SUCCESS, result));
     }
 
     /**
