@@ -4,6 +4,7 @@ plugins {
     id("org.openapi.generator") version "6.3.0"
     id("org.hidetake.swagger.generator") version "2.19.2"
     id("java")
+    id("jacoco")
 }
 
 apply(plugin = "org.hidetake.swagger.generator")
@@ -50,6 +51,51 @@ openApiGenerate {
 
 openApiValidate {
     inputSpec.set("$rootDir/src/main/resources/static/contractcollection-api.yaml")
+}
+
+tasks.test.configure {
+    systemProperty("spring.profiles.active", "prod")
+
+    testLogging {
+        showStandardStreams = true
+    }
+
+    useTestNG() {
+        failFast = false
+        useDefaultListeners = true
+        preserveOrder = true
+        groupByInstances = true
+        suites("src/test/java/de/metallistdev/contractcollection/application/testsuite.xml")
+    }
+
+    reports.html.required.set(false)
+
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+jacoco {
+    toolVersion = jacocoVersion
+    reportsDirectory.set(layout.buildDirectory.dir("docs/jacoco"))
+}
+
+tasks.jacocoTestReport {
+    reports {
+        xml.required = false
+        csv.required = false
+        html.outputLocation.set(layout.buildDirectory.dir("docs/jacoco/jacocoHtml"))
+    }
+}
+
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                counter = "LINE"
+                value = "COVEREDRATIO"
+                minimum = "0.3".toBigDecimal()
+            }
+        }
+    }
 }
 
 
