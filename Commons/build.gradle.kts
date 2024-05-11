@@ -1,8 +1,8 @@
 plugins {
-    id("org.springframework.boot") version "3.2.3"
-    id("io.spring.dependency-management") version "1.1.4"
+    id("org.springframework.boot") version "3.2.5"
+    id("io.spring.dependency-management") version "1.1.5"
     id("io.freefair.lombok") version "8.6"
-    id("org.openapi.generator") version "6.3.0"
+    id("org.openapi.generator") version "7.5.0"
     id("org.hidetake.swagger.generator") version "2.19.2"
     id("java")
 }
@@ -10,7 +10,7 @@ plugins {
 // VARIABLES
 val springVersion = "3.2.5"
 val testNGVersion = "7.10.2"
-val jacksonVersion = "2.17.0"
+val jacksonVersion = "2.17.1"
 val openAPIUIVersion = "1.8.0"
 val openApiGeneratorVersion ="7.5.0"
 val lombokVersion = "1.18.32"
