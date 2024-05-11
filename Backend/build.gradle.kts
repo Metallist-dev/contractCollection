@@ -7,7 +7,7 @@ plugins {
     id("jacoco")
 }
 
-apply(plugin = "org.hidetake.swagger.generator")
+//apply(plugin = "org.hidetake.swagger.generator")
 
 group = "de.metallist"
 version = "0.0.2-SNAPSHOT"
@@ -45,12 +45,23 @@ configurations {
 
 openApiGenerate {
     generatorName.set("html2")
-    inputSpec.set("$rootDir/src/main/resources/static/contractcollection-api.yaml")
-    outputDir.set("${layout.buildDirectory}/docs/openapi")
+    inputSpec.set("$rootDir/Backend/src/main/resources/static/contractcollection-api.yaml")
+    outputDir.set("${layout.buildDirectory.get()}/docs/openapi")
 }
 
 openApiValidate {
-    inputSpec.set("$rootDir/src/main/resources/static/contractcollection-api.yaml")
+    inputSpec.set("$rootDir/Backend/src/main/resources/static/contractcollection-api.yaml")
+}
+
+tasks.generateSwaggerUI.configure {
+    inputFile = file("$rootDir/Backend/src/main/resources/static/contractcollection-api.yaml")
+    outputDir = file("${layout.buildDirectory.get()}/docs/swaggerUI-Backend")
+    doLast {
+        copy {
+            from("Backend/docs/swaggerUi.html")
+            into(outputDir)
+        }
+    }
 }
 
 tasks.test.configure {
