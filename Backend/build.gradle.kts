@@ -58,7 +58,7 @@ tasks.generateSwaggerUI.configure {
     outputDir = file("${layout.buildDirectory.get()}/docs/swaggerUI-Backend")
     doLast {
         copy {
-            from("$rootDir/Backend/src/main/resources/static/swaggerUI-Backend.html")
+            from("$rootDir/Backend/src/main/resources/static/swaggerUI.html")
             into(outputDir)
         }
     }
