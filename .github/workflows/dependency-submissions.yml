@@ -19,3 +19,4 @@ jobs:
         uses: gradle/actions/dependency-submission@v3
         with:
           dependency-graph-continue-on-failure: true
+          additional-arguments: '--stacktrace'
