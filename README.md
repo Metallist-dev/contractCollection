@@ -29,18 +29,19 @@ keeping these data in a quite secure place (i.e. the local machine) this softwar
 ## Technologies
 
 ### Backend
-| **Product / Library**  | **Version**  | **License**        | **Use**                             |
-|------------------------|:------------:|--------------------|-------------------------------------|
-| Java                   | 17 (openjdk) | GPL 2.0            | Basic Implementation                |
-| Spring Boot Framework  |    3.0.2     | Apache License 2.0 | Basic Implementation                |
-| Lombok                 |   1.18.22    | MIT License        | Reduction of boilerplate code       |
-| FasterXML Jackson Core |    2.14.2    | Apache License 2.0 | Processing of JSON used by the API  |
-| Springdoc OpenAPI 3.0  |    1.6.14    | Apache License 2.0 | API documentation, Swagger (live)   |
-| OpenAPI generator      |    6.3.0     | Apache License 2.0 | API documentation                   |
-| Swagger UI             |    4.15.5    | Apache License 2.0 | API documentation, Swagger (static) |
-| TestNG                 |    7.7.1     | Apache License 2.0 | Test implementation                 |
-| Mockito                |    0.4.31    | MIT License        | Test implementation                 |
-| Jacoco                 |    0.8.8     | EPL 2.0            | Test reports                        |
+| **Product / Library**      | **Version**  | **License**        | **Use**                            |
+|----------------------------|:------------:|--------------------|------------------------------------|
+| Java                       | 17 (openjdk) | GPL 2.0            | Basic Implementation               |
+| Spring Boot Framework      |    3.2.5     | Apache License 2.0 | Basic Implementation               |
+| Lombok                     |   1.18.32    | MIT License        | Reduction of boilerplate code      |
+| FasterXML Jackson Core     |    2.17.1    | Apache License 2.0 | Processing of JSON used by the API |
+| Springdoc OpenAPI 3.0      |    1.8.0     | Apache License 2.0 | API documentation                  |
+| OpenAPI generator          |    7.5.0     | Apache License 2.0 | API documentation                  |
+| Swagger UI                 |    5.17.2    | Apache License 2.0 | API documentation, Swagger (live)  |
+| hidetake Swagger-Generator |    2.19.2    | Apache License 2.0 | Swagger (static)                   |
+| TestNG                     |    7.10.2    | Apache License 2.0 | Test implementation                |
+| Mockito                    |    0.5.2     | MIT License        | Test implementation                |
+| Jacoco                     |    0.8.12    | EPL 2.0            | Test reports                       |
 
 
 [Back to top](#table-of-contents)
