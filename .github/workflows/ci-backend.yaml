@@ -22,6 +22,7 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew -Dspring.profiles.active=prod :Backend:assemble
+        
 
   test:
     runs-on: self-hosted
@@ -35,47 +36,52 @@ jobs:
   docs:
     runs-on: self-hosted
     needs: test
-    defaults:
-      run:
-        working-directory: Backend
+#    defaults:
+#      run:
+#        working-directory: Backend
 
     steps:
-      - name: make gradlew runnable
-        run: chmod +x ./gradlew
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5  # v3.1.0
+        with:
+          gradle-version: '8.6'
 
       - name: create API documentation
         run: |
-          ./gradlew openApiGenerate
-          rm -r build/docs/openapi/.openapi-generator && rm build/docs/openapi/.openapi-generator-ignore
-          ./gradlew generateSwaggerUIBackend
-          rm build/docs/swaggerUI-Backend/index.html && mv build/docs/swaggerUI-Backend/swaggerUI.html build/docs/swaggerUI-Backend/index.html
+          ./gradlew :Backend:openApiGenerate
+          rm -r Backend/build/docs/openapi/.openapi-generator && rm Backend/build/docs/openapi/.openapi-generator-ignore
+          ./gradlew :Backend:generateSwaggerUI
+          rm Backend/build/docs/swaggerUI-Backend/index.html && mv Backend/build/docs/swaggerUI-Backend/swaggerUI.html Backend/build/docs/swaggerUI-Backend/index.html
 
       - name: create javadoc documentation
-        run: ./gradlew javadoc
+        run: ./gradlew :Backend:javadoc
 
       - name: create jacoco documentation
-        run: ./gradlew test
+        run: ./gradlew :Backend:test
 
       - name: upload docs to artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Documentation
           path: Backend/build/docs
           retention-days: 1
 
 
-  dependency-submission:
-    runs-on: self-hosted
-    permissions:
-      contents: write
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Generate and submit dependency graph
-        uses: gradle/actions/dependency-submission@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
+#  dependency-submission:
+#    runs-on: self-hosted
+#    permissions:
+#      contents: write
+#
+#    steps:
+#      - uses: actions/checkout@v4
+#      - name: Set up JDK 17
+#        uses: actions/setup-java@v4
+#        with:
+#          java-version: '17'
+#          distribution: 'temurin'
+#
+#      - name: Generate and submit dependency graph
+#        uses: gradle/actions/dependency-submission@v3 # v3.1.0
+#        with:
+#          gradle-version: 8.6
+#          build-root-directory: Backend

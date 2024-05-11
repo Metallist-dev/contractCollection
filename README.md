@@ -1,6 +1,6 @@
 # Contract Collection
 
-Keeping track of expenses especially for long-running contracts is oftentimes quite difficult. Additionally, one may 
+Keeping track of expenses especially for long-running contracts is oftentimes quite difficult. Additionally, one may
 have to search quite a long time in huge folders to find the contract number or any secret for authentication.
 Keeping these sensible data in an online cloud service is oftentimes tightly connected to security concerns. To help
 keeping these data in a quite secure place (i.e. the local machine) this software was created.
@@ -51,7 +51,7 @@ keeping these data in a quite secure place (i.e. the local machine) this softwar
 * stores important and useful data regarding contracts
 * implements CRUD[^1]-operations on contracts
 * communication via REST[^2]-API between frontend and backend
-  * documentation complies with OpenAPI 3.0 standard
+    * documentation complies with OpenAPI 3.0 standard
 * import and export functionality using json-files
 
 [^1]: Create, Read, Update, Delete  
@@ -77,9 +77,9 @@ keeping these data in a quite secure place (i.e. the local machine) this softwar
 ## Documentation
 
 * API documentation
-  * [raw yaml documentation](Backend/src/main/resources/static/contractcollection-api.yaml)
-  * [rendered html documentation](https://metallist-images.de/github/contractcollection/main/docs/openapi/index.html)
-  * [Swagger UI](https://metallist-images.de/github/contractcollection/main/docs/swaggerUI-Backend/index.html)
+    * [raw yaml documentation](Backend/src/main/resources/static/contractcollection-api.yaml)
+    * [rendered html documentation](https://metallist-images.de/github/contractcollection/main/docs/openapi/index.html)
+    * [Swagger UI](https://metallist-images.de/github/contractcollection/main/docs/swaggerUI-Backend/index.html)
 * [Javadoc documentation](https://metallist-images.de/github/contractcollection/main/docs/javadoc/index-all.html)
 * [Jacoco coverage report](https://metallist-images.de/github/contractcollection/main/docs/jacoco/jacocoHtml/index.html)
 
