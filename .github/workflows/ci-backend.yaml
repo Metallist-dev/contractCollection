@@ -60,7 +60,7 @@ jobs:
         run: ./gradlew :Backend:test
 
       - name: upload docs to artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Documentation
           path: Backend/build/docs
@@ -81,4 +81,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Generate and submit dependency graph
-        uses: gradle/actions/dependency-submission@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
+        uses: gradle/actions/dependency-submission@v3 # v3.1.0
+        with:
+          gradle-version: 8.6
+          build-root-directory: Backend
