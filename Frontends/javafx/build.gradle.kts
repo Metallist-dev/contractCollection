@@ -2,21 +2,21 @@ plugins {
     id("java")
     id("application")
     id("org.openjfx.javafxplugin") version "0.1.0"
-    id("org.beryx.jlink") version "3.0.1"
+    id("org.beryx.jlink") version "3.1.5"
 }
 
 // VARIABLES
-val controlsFXVersion = "11.2.1"
+val controlsFXVersion = "11.2.3"
 val formsFXVersion = "11.6.0"
-val ikonliVersion = "12.3.1"
-val bootsrapFxCoreVersion = "0.4.0"
-val kotlinVersion = "1.9.10"
-val jacksonVersion = "2.17.1"
-val okhttpVersion = "4.12.0"
-val slf4jVersion = "2.0.13"
-val testNGVersion = "7.10.2"
-val mockitoVersion = "0.5.2"
-val jacocoVersion = "0.8.12"
+val ikonliVersion = "12.4.0"
+val bootstrapFxCoreVersion = "0.4.0"
+val kotlinVersion = "2.4.0"
+val jacksonVersion = "3.2.0"
+val okhttpVersion = "5.4.0"
+val slf4jVersion = "2.0.18"
+val testNGVersion = "7.12.0"
+val mockitoVersion = "0.5.4"
+val jacocoVersion = "0.8.15"
 // VARIABLES
 
 group = "de.metallistdev"
@@ -47,31 +47,31 @@ dependencies {
 
     // BSD 3-clause
     // https://mvnrepository.com/artifact/org.controlsfx/controlsfx
-    implementation(group = "org.controlsfx", name = "controlsfx", version = controlsFXVersion)
+    implementation("org.controlsfx:controlsfx:$controlsFXVersion")
 
     // Apache 2.0
     // https://mvnrepository.com/artifact/com.dlsc.formsfx/formsfx-core
-    implementation(group = "com.dlsc.formsfx", name = "formsfx-core", version = formsFXVersion){
+    implementation("com.dlsc.formsfx:formsfx-core:$formsFXVersion"){
         exclude(group = "org.openjfx")
     }
 
     // https://mvnrepository.com/artifact/org.kordamp.ikonli/ikonli-javafx
-    implementation(group = "org.kordamp.ikonli", name = "ikonli-javafx", version = ikonliVersion)
+    implementation("org.kordamp.ikonli:ikonli-javafx:$ikonliVersion")
 
     // https://mvnrepository.com/artifact/org.kordamp.bootstrapfx/bootstrapfx-core
-    implementation(group = "org.kordamp.bootstrapfx", name = "bootstrapfx-core", version = bootsrapFxCoreVersion)
+    implementation("org.kordamp.bootstrapfx:bootstrapfx-core:$bootstrapFxCoreVersion")
 
     // Apache License 2.0
     // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib
-    implementation(group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version = kotlinVersion)
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
 
     // Apache License 2.0
-    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
-    implementation(group = "com.fasterxml.jackson.core", name = "jackson-core", version = jacksonVersion)
+    // https://mvnrepository.com/artifact/tools.jackson.core/jackson-core
+    implementation("tools.jackson.core:jackson-core:$jacksonVersion")
 
     // Apache License 2.0
-    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
-    implementation(group = "com.fasterxml.jackson.core", name = "jackson-databind", version = jacksonVersion)
+    // https://mvnrepository.com/artifact/tools.jackson.core/jackson-databind
+    implementation("tools.jackson.core:jackson-databind:$jacksonVersion")
 
     // MIT License
     // https://mvnrepository.com/artifact/org.projectlombok/lombok
@@ -80,28 +80,28 @@ dependencies {
 
     // Apache License 2.0
     // https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp
-    implementation(group = "com.squareup.okhttp3", name = "okhttp", version = okhttpVersion)
+    implementation("com.squareup.okhttp3:okhttp:$okhttpVersion")
 
     // MIT License
     // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
-    implementation(group = "org.slf4j", name = "slf4j-api", version = slf4jVersion)
+    implementation("org.slf4j:slf4j-api:$slf4jVersion")
 
     // Apache License 2.0
     // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-reflect
-    runtimeOnly(group = "org.jetbrains.kotlin", name = "kotlin-reflect", version = kotlinVersion)
+    runtimeOnly("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
 
 
     // Apache License 2.0
     // https://mvnrepository.com/artifact/org.testng/testng
-    testImplementation(group = "org.testng", name = "testng", version = testNGVersion)
+    testImplementation("org.testng:testng:$testNGVersion")
 
     // MIT License
     // https://mvnrepository.com/artifact/org.mockito/mockito-testng
-    testImplementation(group = "org.mockito", name = "mockito-testng", version = mockitoVersion)
+    testImplementation("org.mockito:mockito-testng:$mockitoVersion")
 
     // EPL 2.0
     // https://mvnrepository.com/artifact/org.jacoco/org.jacoco.agent
-    testImplementation(group = "org.jacoco", name = "org.jacoco.agent", version = jacocoVersion)
+    testImplementation("org.jacoco:org.jacoco.agent:$jacocoVersion")
 }
 
 tasks.withType<Test> {

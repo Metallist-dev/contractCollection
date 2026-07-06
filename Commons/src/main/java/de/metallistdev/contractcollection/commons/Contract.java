@@ -1,8 +1,8 @@
 package de.metallistdev.contractcollection.commons;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -69,7 +69,7 @@ public class Contract {
 
     /**
      * creates a JSON from the instance
-     * @return contract json
+     * @return contract JSON
      */
     public JsonNode toJson() {
         ObjectMapper mapper = new ObjectMapper();

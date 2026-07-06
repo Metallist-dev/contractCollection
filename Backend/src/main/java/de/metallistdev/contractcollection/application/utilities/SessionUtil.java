@@ -1,11 +1,12 @@
 package de.metallistdev.contractcollection.application.utilities;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeType;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeType;
 import de.metallistdev.contractcollection.commons.Contract;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +40,7 @@ public class SessionUtil {
 
     private String password;
 
-    private final ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+    private final ObjectMapper mapper = JsonMapper.builder().enable(SerializationFeature.INDENT_OUTPUT).build();
 
     public SessionUtil() {
         this.contracts = new ArrayList<>();
@@ -137,17 +138,17 @@ public class SessionUtil {
         for (JsonNode contractJson : importJson) {
             Contract contract = new Contract();
 
-            contract.setCategory(contractJson.get("category").textValue());
-            contract.setName(contractJson.get("name").textValue());
+            contract.setCategory(contractJson.get("category").stringValue());
+            contract.setName(contractJson.get("name").stringValue());
             contract.setExpenses(contractJson.get("expenses").floatValue());
             contract.setCycle(contractJson.get("cycle").intValue());
-            contract.setCustomerNr(contractJson.get("customerNr").textValue());
-            contract.setContractNr(contractJson.get("contractNr").textValue());
-            contract.setStartDate(contractJson.get("startDate").textValue());
+            contract.setCustomerNr(contractJson.get("customerNr").stringValue());
+            contract.setContractNr(contractJson.get("contractNr").stringValue());
+            contract.setStartDate(contractJson.get("startDate").stringValue());
             contract.setContractPeriod(contractJson.get("contractPeriod").intValue());
             contract.setPeriodOfNotice(contractJson.get("periodOfNotice").intValue());
-            contract.setDescription(contractJson.get("description").textValue());
-            contract.setDocumentPath(contractJson.get("documentPath").textValue());
+            contract.setDescription(contractJson.get("description").stringValue());
+            contract.setDocumentPath(contractJson.get("documentPath").stringValue());
 
             int maxID = 1;
             for (Contract v : this.getContracts()) {
@@ -210,7 +211,7 @@ public class SessionUtil {
         try {
             decryptedData = EncryptionUtil.decrypt(cipherdata, password);
             json = mapper.readTree(decryptedData);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             log.error("Couldn't read data.");
             log.debug(e.getMessage());
             log.debug(Arrays.toString(e.getStackTrace()));

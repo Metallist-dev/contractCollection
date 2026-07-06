@@ -1,5 +1,5 @@
 module de.metallist.contractcollection.commons {
-    requires com.fasterxml.jackson.databind;
+    requires tools.jackson.databind;
     requires lombok;
     requires org.slf4j;
 

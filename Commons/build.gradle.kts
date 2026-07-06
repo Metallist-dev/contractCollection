@@ -1,29 +1,29 @@
 plugins {
-    id("org.springframework.boot") version "3.2.5"
-    id("io.spring.dependency-management") version "1.1.5"
-    id("io.freefair.lombok") version "8.6"
-    id("org.openapi.generator") version "7.5.0"
+    id("org.springframework.boot") version "4.1.0"
+    id("io.spring.dependency-management") version "1.1.7"
+    id("io.freefair.lombok") version "9.5.0"
+    id("org.openapi.generator") version "7.14.0"
     id("org.hidetake.swagger.generator") version "2.19.2"
     id("java")
 }
 
 // VARIABLES
-val springVersion = "3.2.5"
-val testNGVersion = "7.10.2"
-val jacksonVersion = "2.17.1"
+val springVersion = "4.1.0"
+val testNGVersion = "7.12.0"
+val jacksonVersion = "3.2.0"
 val openAPIUIVersion = "1.8.0"
-val openApiGeneratorVersion ="7.5.0"
-val lombokVersion = "1.18.32"
-val swaggerUiVersion = "5.17.2"
-val mockitoVersion = "0.5.2"
-val jacocoVersion = "0.8.12"
+val openApiGeneratorVersion ="7.14.0"
+val lombokVersion = "1.18.46"
+val swaggerUiVersion = "5.32.8"
+val mockitoVersion = "0.5.4"
+val jacocoVersion = "0.8.15"
 // VARIABLES
 
 group = "de.metallistdev"
 version = "0.0.1-SNAPSHOT"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
 }
 
 configurations {
@@ -39,38 +39,38 @@ repositories {
 dependencies {
     // Apache License 2.0
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools
-    developmentOnly(group = "org.springframework.boot", name = "spring-boot-devtools", version = springVersion)
+    developmentOnly("org.springframework.boot:spring-boot-devtools:$springVersion")
 
     // Apache License 2.0
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot
-    implementation(group = "org.springframework.boot", name = "spring-boot", version = springVersion)
+    implementation("org.springframework.boot:spring-boot:$springVersion")
 
     // Apache License 2.0
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-actuator
-    implementation(group = "org.springframework.boot", name = "spring-boot-starter-actuator", version = springVersion)
+    implementation("org.springframework.boot:spring-boot-starter-actuator:$springVersion")
 
     // Apache License 2.0
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web
-    implementation(group = "org.springframework.boot", name = "spring-boot-starter-web", version = springVersion)
+    implementation("org.springframework.boot:spring-boot-starter-web:$springVersion")
     {
         exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
     }
 
     // Apache License 2.0
     // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-ui
-    implementation(group = "org.springdoc", name ="springdoc-openapi-ui", version = openAPIUIVersion)
+    implementation("org.springdoc:springdoc-openapi-ui:$openAPIUIVersion")
 
     // Apache License 2.0
     // https://mvnrepository.com/artifact/org.openapitools/openapi-generator-gradle-plugin
-    implementation (group = "org.openapitools", name = "openapi-generator-gradle-plugin", version = openApiGeneratorVersion)
+    implementation ("org.openapitools:openapi-generator-gradle-plugin:$openApiGeneratorVersion")
 
     // Apache License 2.0
-    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
-    implementation(group = "com.fasterxml.jackson.core", name = "jackson-core", version = jacksonVersion)
+    // https://mvnrepository.com/artifact/tools.jackson.core/jackson-core
+    implementation("tools.jackson.core:jackson-core:$jacksonVersion")
 
     // Apache License 2.0
-    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
-    implementation(group = "com.fasterxml.jackson.core", name = "jackson-databind", version = jacksonVersion)
+    // https://mvnrepository.com/artifact/tools.jackson.core/jackson-databind
+    implementation("tools.jackson.core:jackson-databind:$jacksonVersion")
 
     // MIT License
     // https://mvnrepository.com/artifact/org.projectlombok/lombok
@@ -79,7 +79,7 @@ dependencies {
 
     // Apache License 2.0
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-configuration-processor
-    annotationProcessor(group = "org.springframework.boot", name = "spring-boot-configuration-processor", version = springVersion)
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:$springVersion")
 
 
     // Apache License 2.0
@@ -88,22 +88,29 @@ dependencies {
 
     // Apache License 2.0
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test
-    testImplementation(group = "org.springframework.boot", name = "spring-boot-starter-test", version = springVersion)
+    testImplementation("org.springframework.boot:spring-boot-starter-test:$springVersion")
     {
         exclude(group = "junit", module = "junit")
     }
 
     // Apache License 2.0
     // https://mvnrepository.com/artifact/org.testng/testng
-    testImplementation(group = "org.testng", name = "testng", version = testNGVersion)
+    testImplementation("org.testng:testng:$testNGVersion")
 
     // MIT License
     // https://mvnrepository.com/artifact/org.mockito/mockito-testng
-    testImplementation(group = "org.mockito", name = "mockito-testng", version = mockitoVersion)
+    testImplementation("org.mockito:mockito-testng:$mockitoVersion")
 
     // EPL 2.0
     // https://mvnrepository.com/artifact/org.jacoco/org.jacoco.agent
-    testImplementation(group = "org.jacoco", name = "org.jacoco.agent", version = jacocoVersion)
+    testImplementation("org.jacoco:org.jacoco.agent:$jacocoVersion")
+}
+
+configurations {
+    all {
+        exclude(group = "com.github.joschi.jackson", module = "jackson-datatype-threetenbp")
+        exclude(group = "com.fasterxml.jackson.datatype", module = "jackson-datatype-threetenbp")
+    }
 }
 
 tasks.withType<Test> {

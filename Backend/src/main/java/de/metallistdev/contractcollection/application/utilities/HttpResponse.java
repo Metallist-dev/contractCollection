@@ -1,10 +1,11 @@
 package de.metallistdev.contractcollection.application.utilities;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 import de.metallistdev.contractcollection.commons.Contract;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,7 +23,7 @@ import static de.metallistdev.contractcollection.application.utilities.ReasonCod
 @Slf4j
 @SuppressWarnings("java:S1874")
 public class HttpResponse {
-    private static final ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+    private static final ObjectMapper mapper = JsonMapper.builder().enable(SerializationFeature.INDENT_OUTPUT).build();
 
     private static final String BASEPATH = "static/templates/responses/";
 

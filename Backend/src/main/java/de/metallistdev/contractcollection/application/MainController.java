@@ -1,6 +1,6 @@
 package de.metallistdev.contractcollection.application;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import de.metallistdev.contractcollection.application.utilities.HttpResponse;
 import de.metallistdev.contractcollection.application.utilities.SessionUtil;
 import de.metallistdev.contractcollection.commons.Contract;
@@ -44,17 +44,17 @@ public class MainController {
         log.debug(contractJson.toPrettyString());
 
         try {
-            String category = contractJson.get("category").textValue();
-            String name = contractJson.get("name").textValue();
+            String category = contractJson.get("category").stringValue();
+            String name = contractJson.get("name").stringValue();
             float expenses = contractJson.get("expenses").floatValue();
             int cycle = contractJson.get("cycle").intValue();
-            String customerNr = contractJson.get("customerNr").textValue();
-            String contractNr = contractJson.get("contractNr").textValue();
-            String startDate = contractJson.get("startDate").textValue();
+            String customerNr = contractJson.get("customerNr").stringValue();
+            String contractNr = contractJson.get("contractNr").stringValue();
+            String startDate = contractJson.get("startDate").stringValue();
             int contractPeriod = contractJson.get("contractPeriod").intValue();
             int periodOfNotice = contractJson.get("periodOfNotice").intValue();
-            String description = contractJson.get("description").asText();
-            String documentPath = contractJson.get("documentPath").asText();
+            String description = contractJson.get("description").asString();
+            String documentPath = contractJson.get("documentPath").asString();
 
             if (cycle < 1) throw new IllegalArgumentException("The given cycle is below 1 month. Please check the input.");
 
@@ -91,7 +91,7 @@ public class MainController {
         log.debug(request.toPrettyString());
 
         int id = request.get("id").intValue();
-        String name = request.get("name").textValue();
+        String name = request.get("name").stringValue();
         Contract contract = session.getSingleContract(id);
 
         try {
@@ -150,8 +150,8 @@ public class MainController {
         log.info("PATCH-Request for single contract with id {}", id);
         log.debug(request.toPrettyString());
 
-        String key = request.get("key").textValue();
-        String value = request.get("value").asText();
+        String key = request.get("key").stringValue();
+        String value = request.get("value").asString();
 
         Contract newContract = session.updateContract(id, key, value);
         if (newContract == null) {
@@ -175,8 +175,8 @@ public class MainController {
 
         boolean overwrite = request.get("overwrite").booleanValue();
         if (overwrite) session.removeAllContracts();
-        String filepath = request.get("filepath").asText();
-        String password = request.get("password").asText();
+        String filepath = request.get("filepath").asString();
+        String password = request.get("password").asString();
 
         List<Contract> result = session.loadFile(filepath, password);
 
@@ -195,8 +195,8 @@ public class MainController {
         log.info("Export given contracts to file.");
         log.debug(request.toPrettyString());
 
-        String filepath = request.get("filepath").textValue();
-        String password = request.get("password").textValue();
+        String filepath = request.get("filepath").stringValue();
+        String password = request.get("password").stringValue();
         log.debug("contracts = {}", request.get("contracts").toPrettyString());
 
         if (session.writeFile(filepath, password)) return ResponseEntity.ok(HttpResponse.requestDeleteContract(ReasonCodes.RC_EXPORT_SUCCESS));

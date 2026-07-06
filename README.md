@@ -34,7 +34,7 @@ keeping these data in a quite secure place (i.e. the local machine) this softwar
 | Java                       | 17 (openjdk) | GPL 2.0            | Basic Implementation               |
 | Spring Boot Framework      |    3.2.5     | Apache License 2.0 | Basic Implementation               |
 | Lombok                     |   1.18.32    | MIT License        | Reduction of boilerplate code      |
-| FasterXML Jackson Core     |    2.17.1    | Apache License 2.0 | Processing of JSON used by the API |
+| Jackson Core, Databind     |    2.17.1    | Apache License 2.0 | Processing of JSON used by the API |
 | Springdoc OpenAPI 3.0      |    1.8.0     | Apache License 2.0 | API documentation                  |
 | OpenAPI generator          |    7.5.0     | Apache License 2.0 | API documentation                  |
 | Swagger UI                 |    5.17.2    | Apache License 2.0 | API documentation, Swagger (live)  |

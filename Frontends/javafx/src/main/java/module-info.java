@@ -6,7 +6,7 @@ module de.metallist.contractcollection.javafx {
     requires com.dlsc.formsfx;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
-    requires com.fasterxml.jackson.databind;
+    requires tools.jackson.databind;
     requires okhttp3;
     requires kotlin.stdlib;
 
