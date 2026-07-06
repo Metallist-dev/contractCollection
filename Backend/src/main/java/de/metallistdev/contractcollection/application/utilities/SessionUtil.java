@@ -168,7 +168,7 @@ public class SessionUtil {
 
     /**
      * puts the list of contracts into a json
-     * @return  string of json
+     * @return  string of JSON
      */
     private String contractsToString() {
         ArrayNode arrayNode = mapper.valueToTree(contracts);
