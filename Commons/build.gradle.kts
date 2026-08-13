@@ -10,7 +10,7 @@ plugins {
 // VARIABLES
 val springVersion = "4.1.0"
 val testNGVersion = "7.12.0"
-val jacksonVersion = "3.2.0"
+val jacksonVersion = "3.2.1"
 val openAPIUIVersion = "1.8.0"
 val openApiGeneratorVersion ="7.14.0"
 val lombokVersion = "1.18.46"
